@@ -1,0 +1,68 @@
+html{
+	font-family: 'Merriweather', serif;
+}
+
+h1 {
+	font-family: 'Merriweather', serif;
+	font-weight:bold;
+	font-size:45px;
+	margin:0px;
+}
+h2 {
+	font-family:'Merriweather', serif;
+	font-weight:lighter;
+	font-size:20px;
+	margin:0px;
+}
+
+#container {
+	margin-top:130px !important;
+	width:960px;
+	margin:auto;
+}
+#container-devs {
+	margin-top:130px !important;
+	width:960px;
+	margin:auto;
+}
+#title{
+	float:left;
+}
+#nav{
+	float:right;
+}
+ul {
+	list-style-type: none;
+	text-align: right;
+}
+a{
+	font-family:'Merriweather', serif;
+	color:blue;
+	text-decoration: none;
+}
+a:hover{
+	text-decoration: underline;
+}
+
+
+.footer{
+	position:fixed;
+	bottom:0px;
+	width:100%;
+	text-align: center;
+}
+.fineprint{
+	color:#6f6f6f;
+	font-size:12px;
+}
+#devs{
+	width:750px;
+	margin-top:100px !important;
+	margin:auto;
+}
+.dev{
+	width:200px;
+	margin: 20px;
+	float:left;
+	text-align: center;
+}
