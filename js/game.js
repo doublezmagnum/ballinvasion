@@ -129,8 +129,8 @@ var render = function ()
     {
         turned.circleCounter += turned.circleSpeed;
 		
-		turned.x += turned.circleCounter*-Math.sin(turned.crashAngle + turned.circleCounter)
-		turned.y += turned.circleCounter*Math.cos(turned.crashAngle + turned.circleCounter)
+		turned.x += turned.circleCounter*-Math.sin(turned.circleCounter)
+		turned.y += turned.circleCounter*Math.cos(turned.circleCounter)
 
 		turned.draw()
 	});
