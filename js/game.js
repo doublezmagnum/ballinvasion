@@ -91,7 +91,7 @@ var laserArray = []
 function doMouseDown(event)
 {
 	var laser = new Laser();
-	laser.spawn(1);
+	laser.spawn(6);
 }
 
 var spawnLimit = 0.005
@@ -115,7 +115,7 @@ var circleX = canvas.width / 2
 var circleY = canvas.height / 2
 
 // Draw everything
-var render = function () 
+var render = function (deltaTime) 
 {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	center.draw()
@@ -127,10 +127,26 @@ var render = function ()
    
     turnedArray.forEach(function(turned)
     {
-        turned.circleCounter += turned.circleSpeed;
+    	turned.moveIntoOrbit()
+        turned.circleCounter += turned.circleSpeed
 		
-		turned.x += turned.circleCounter*-Math.sin(turned.circleCounter)
-		turned.y += turned.circleCounter*Math.cos(turned.circleCounter)
+		turned.x += -Math.sin(turned.circleCounter + turned.crashAngle) + turned.errorSpeedX * 0.01
+		turned.y += Math.cos(turned.circleCounter + turned.crashAngle) + turned.errorSpeedY * 0.01
+
+		if (turned.circleCounter >= 2*Math.PI)
+		{
+			turned.circleCounter = 0
+		}
+
+		for (var e = 0; e < ballArray.length; e++)
+		{
+			ball2 = ballArray[e]
+
+			if (turned.testCollision(ball2) == true)
+			{
+				turned.handleCollision(ball2)
+			}
+		}
 
 		turned.draw()
 	});
@@ -165,8 +181,13 @@ var render = function ()
 
 	laserArray.forEach(function(laser)
 	{
-		laser.moveRotated();
-		laser.drawLaser();
+		laser.flightCounter += 1;
+		
+		console.trace(laser.startX, laser.vector[0], laser.flightCounter)					
+		laser.x = laser.startX + laser.vector[0] * laser.flightCounter;
+		laser.y = laser.startY - laser.vector[1] * laser.flightCounter;
+
+		laser.drawLaser()
 	});
 };
 
@@ -177,7 +198,7 @@ var main = function ()
 	var delta = now - then;
 
 	update(delta / 1000);
-	render();
+	render(delta / 1000);
 
 	then = now;
 
@@ -242,13 +263,63 @@ function Ball()
 		turnedArray[turnedArray.length] = this
 
 		this.crashAngle -= Math.PI / 2
+		console.log("Crashangle: ", this.crashAngle)
 
-		this.circleCounter = this.crashAngle
-		this.circleSpeed = 1 / (100 * 2 *Math.PI)
+		this.circleCounter = 0
+		this.circleSpeed = 1 / (100)
 
-		this.x = (canvas.width * 0.5 + 50) + 100 * Math.cos((this.crashAngle));
-		this.y = (canvas.height * 0.5 + 50) + 100 * Math.sin((this.crashAngle));
+		//this.x = (canvas.width * 0.5 + 50) + 100 * Math.cos((this.crashAngle));
+		//this.y = (canvas.height * 0.5 + 50) + 100 * Math.sin((this.crashAngle));
 
+		this.errorSpeedX = 0
+		this.errorSpeedY = 0
+	}
+
+	this.moveIntoOrbit = function()
+	{
+		var refX = canvas.width * 0.5 + 50 + 100*Math.cos(this.circleCounter + this.crashAngle)
+		var refY = canvas.height * 0.5 + 50 + 100*Math.sin(this.circleCounter + this.crashAngle)
+
+		this.errorSpeedX = refX-this.x
+		this.errorSpeedY = refY-this.y
+	}
+
+	this.testCollision = function(ball2)
+	{
+		var dx = ball2.x - this.x
+		var dy = ball2.y - this.y
+
+		var distance = Math.sqrt(dx*dx+dy*dy)
+
+		if (distance < ball2.radius + this.radius)
+		{
+			return true
+		}
+		else
+		{
+			return false
+		}
+	}
+
+	this.handleCollision = function(ball2)
+	{
+		var angle = Math.atan2(ball2.x - this.x, this.y - ball2.y);
+
+        var targetX = this.x + Math.cos(angle) * (ball2.radius + this.radius);
+
+        var targetY = this.y + Math.sin(angle) * (ball2.radius + this.radius);
+
+        var ax = (targetX - ball2.x) * 0.05;
+
+        var ay = (targetY - ball2.y) * 0.05;
+
+        //this.vector[0] -= ax;
+
+        //this.vector[1] -= ay
+
+        ball2.vector[0] += ax;
+
+        ball2.vector[1] += ay;
 	}
 
 	this.giveDirection = function(toX, toY, expectedToCrash)
@@ -317,6 +388,8 @@ function Laser()
 {
 	this.spawn = function(speed)
 	{
+		this.flightCounter = 0
+		this.radius = 7
 		this.speed = speed
 
 		this.color = laserColor
@@ -328,6 +401,18 @@ function Laser()
 		this.rotation = pad.rotation
 
 		laserArray[laserArray.length] = this
+
+	 	this.startX = this.x
+	 	this.startY = this.y
+
+		var dx = this.radius + this.x - (event.clientX + document.body.scrollLeft)
+	   	var dy = event.clientY + document.body.scrollTop - this.y - this.radius
+
+	   	this.a = dy/dx
+	    this.b = this.y - this.a*this.x
+
+	    this.absvector = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+		this.vector = [-this.speed * dx / this.absvector,- this.speed * dy / this.absvector];
 	}
 
 	this.drawLaser = function()
@@ -342,13 +427,6 @@ function Laser()
          
         ctx.closePath();
 	};
-
-	this.moveRotated = function() 
-	{ 
-
-		this.x += this.speed * Math.sin(this.rotation * Math.PI);
-		this.y += this.speed * Math.cos(this.rotation * Math.PI);
-	}
 }
 
 
