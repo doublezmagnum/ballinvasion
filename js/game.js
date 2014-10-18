@@ -23,6 +23,15 @@ padImage.onload = function () {
 
 padImage.src = "images/Pad.png";
 
+// Pad image
+var ballReady = false;
+var ballImage = new Image();
+ballImage.onload = function () {
+	ballReady = true;
+};
+
+ballImage.src = "images/InvadingBall.png";
+
 // Game objects
 var circle = 
 {
@@ -33,6 +42,7 @@ var pad =
 {
 	rotation: 0
 };
+
 
 function drawRotatedImage(image, x, y, angle) { 
  
@@ -56,6 +66,10 @@ function drawRotatedImage(image, x, y, angle) {
  
 	// and restore the co-ords to how they were when we began
 	ctx.restore(); 
+}
+
+function SpawnBalls(){
+
 }
 
 
@@ -97,6 +111,8 @@ var render = function () {
 		ctx.drawImage(circleImage, canvas.width / 2, canvas.height / 2);
 	}
 
+
+
 	if (padReady) {
 		drawRotatedImage(padImage, pad.x, pad.y, pad.rotation);
 	}
@@ -124,3 +140,12 @@ requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame
 var then = Date.now();
 main();
 
+function ball() {
+	this.spawn = function(x, y, speed) {
+		this.x = x;
+		this.y = y;
+		this.speed = speed;
+		this.speedX = 0;
+		this.speedY = speed;
+	};
+}
