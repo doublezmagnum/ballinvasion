@@ -660,7 +660,7 @@ function Ball()
 
 		this.circleCounter = 0
 		this.circleSpeed = 1 / (100)
-		this.orbitRadius = 100+200*Math.random()
+		this.orbitRadius = 1.5*circle.radius + 1.5*circle.radius*Math.random()
 
 		//this.x = (canvas.width * 0.5 + 50) + 100 * Math.cos((this.crashAngle));
 		//this.y = (canvas.height * 0.5 + 50) + 100 * Math.sin((this.crashAngle));
