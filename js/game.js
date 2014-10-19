@@ -77,6 +77,12 @@ function doMouseDown(event)
 			angleError += 0.05
 		}	
 	}
+	else
+	{
+		// REFUSE BUY
+		var refuseSound = new Audio("sound/Reject1.wav");
+		refuseSound.play()
+	}
 
 	// TESTING
 
@@ -125,7 +131,7 @@ var update = function (modifier)
 	{
 		var ball = new Ball();
 		ball.spawn(ballSpeed);
-		spawnLimit += 0.0003
+		spawnLimit += 0.0001
 	}
 	if(fighterBar <= fighterBarMax)
 	{
@@ -250,10 +256,63 @@ var render = function (deltaTime)
         	{
         		//ball.giveDirection(ball.spawnX, ball.spawnY, false)
         		ball.turn()
+
+        		var now = Date.now()
+        		console.log((now-comboThen)/1000)
+				if ((now-comboThen)/1000<= 1)
+        		{
+        			console.trace(now, comboThen, comboStage, comboHits, comboSounds[comboStage-1])
+        			comboThen = now
+        			comboStage += 1
+        			comboHits += 1
+        			if (comboStage > 1)
+        			{
+        				comboSounds[comboStage-1].play()
+        			}
+        			
+
+        			if(comboStage == 5)
+        			{
+        				// GET HELATH
+        				//combohits
+        			}
+        		}
+        		else
+        		{
+        			comboHits = 0
+        			comboStage = 0
+        		}
         	}
         	
         	else
         	{
+        		var now = Date.now()
+
+				if (Math.floor((now-comboThen)/1000) <= 1)
+        		{
+        			comboThen = now
+        			comboStage += 1
+
+        			if(comboStage == 4)
+        			{
+        				// GET HELATH
+        				//combohits
+        			}
+        		}
+        		else
+        		{
+        			comboHits = 0
+        			comboStage = 0
+        		}
+        		if (comboStage-comboHits == 2)
+        		{
+        			comboStage = 0
+        			comboHits = 0
+        		}
+
+        		console.trace(comboStage);
+        		console.trace(comboHits);
+
         		//console.trace("SLIPTHROUGH: ", ball.crashAngle, pad.rotation, Math.abs(ball.crashAngle-pad.rotation))
 	        	circle.radius -= 5
 	        	//console.trace("Edited circle posision: ", circle.radius, circle.x, circle.y)
@@ -282,10 +341,10 @@ var render = function (deltaTime)
 	        		pad.x = 4000
 	        		pad.y = 4000
 	        		
-	        		/*
+	        		
 	        		// Game over
 	        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
-	        		*/
+	        		
 	        	}
         	}
         }
@@ -442,22 +501,21 @@ var w = window;
 requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
 
 
-var ballColor = '#DB2EC7';
+//var ballColor = '#DB2EC7';
+var ballColor = '#CF0000';
 var centerColor = "rgb(82, 92 ,209)"; //(R,G,B)
 
 var pad = new Pad()
 
-// Let's play this game!
-var songArray = [    
-
-
-
-]
-var songCounter = 0
-var music = new Audio("music/The Helix Dunno Edition.mp3");
+var songLength = 15*60
+var music = new Audio("music/Mix3.mp3");
 music.play()
 var then = Date.now();
 main();
+var comboSounds = [new Audio("sound/Combo/1.wav"), new Audio("sound/Combo/2.wav"), new Audio("sound/Combo/3.wav"), new Audio("sound/Combo/4.wav")]
+var comboThen = 0
+var comboStage = 0
+var comboHits = 0
 
 function Pad()
 {
@@ -758,14 +816,31 @@ function keyboard(e)
 			var blast = new AoEBlast();
 			blast.spawn();
 		}
+		else
+		{
+			// REFUSE BUY
+			var refuseSound = new Audio("sound/Reject1.wav");
+			refuseSound.play()
+		}
 		
 	}
-	else if (e.keyCode == 69 && fighterBar >= fighterBarMax)
+	else if (e.keyCode == 69)
 	{
 		// E
-		var fighter = new Fighter();
-		fighter.spawn();
-		fighterBar = 0;
+		if (fighterBar >= fighterBarMax)
+		{
+			var fighter = new Fighter();
+			fighter.spawn();
+			fighterBar = 0;
+		}
+
+		else
+		{
+			// REFUSE BUY
+			var refuseSound = new Audio("sound/Reject1.wav");
+			refuseSound.play()
+		}
+		
 	}
 	else if (e.keyCode == 32)
 	{
