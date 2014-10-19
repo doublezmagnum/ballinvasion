@@ -2,7 +2,7 @@
 var canvas = document.createElement("canvas");
 var ctx = canvas.getContext("2d");
 canvas.width = 1280;
-canvas.height = 720;
+canvas.height = 600;
 document.body.appendChild(canvas);
 
 
@@ -90,6 +90,7 @@ function doMouseDown(event)
 	var sy = circle.y
 	console.log("Mouse Coordinates: ", mouseX, mouseY)
 	console.log("Pad Rotation: ", pad.testRotation)
+	console.log("Center relative coordinates", mouseX-sx, mouseY-sy)
 	
 }
 
@@ -260,7 +261,7 @@ var render = function (deltaTime)
         		ball.turn()
         		
         		console.trace(now-ComboThen, now, ComboThen)
-				if (survivedSeconds-ComboThen <= 3)
+				if (survivedSeconds-ComboThen <= 1)
         		{
         			comboThen = now
         			
@@ -281,25 +282,24 @@ var render = function (deltaTime)
 					if(comboStage == 4)
         			{
         				circle.radius += comboHits*5
+
+        				for (var yk = 0; yk < turnedArray.length; yk++)
+        				{
+        					turnedArray[yk].orbitRadius += comboHits*5
+        				}
         			}
-        		}
-        		else if  (comboStage == 0)
-        		{
-        			comboThen = now
-        			comboHits += 1
-        			comboStage+=1
         		}
         		else
         		{
-        			ComboThen = now
-        			comboHits = 0
-        			comboStage = 0
+        			comboThen = now
+        			comboHits = 1
+        			comboStage = 1
         		}
         	}
         	
         	else
         	{
-        		if (now-ComboThen <= 2)
+        		if (now-ComboThen <= 1)
         		{
         			
         			comboStage += 1
@@ -309,6 +309,10 @@ var render = function (deltaTime)
         				// GET HELATH
         				//combohits
         				circle.radius += comboHits*5
+        				for (var uk = 0; uk < turnedArray.length; uk++)
+        				{
+        					turnedArray[uk].orbitRadius += comboHits*5
+        				}
         			}
 
         			if (comboStage-comboHits == 2)
@@ -325,6 +329,10 @@ var render = function (deltaTime)
 
         		//console.trace("SLIPTHROUGH: ", ball.crashAngle, pad.rotation, Math.abs(ball.crashAngle-pad.rotation))
 	        	circle.radius -= 5
+	        	for (var wk = 0; wk < turnedArray.length; wk++)
+        		{
+        			turnedArray[wk].orbitRadius -= 5
+        		}
 	        	//console.trace("Edited circle posision: ", circle.radius, circle.x, circle.y)
 	        	//circle.x -= 5
 	        	//circle.y -= 5
