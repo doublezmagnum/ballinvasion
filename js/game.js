@@ -103,11 +103,6 @@ var update = function (modifier)
 
 
 	}
-
-	aoeArray.forEach(function(blast)
-	{
-		//blast.update();
-	});
 };
 
 var circleX = canvas.width / 2
@@ -123,7 +118,16 @@ var render = function (deltaTime)
 
 	aoeArray.forEach(function(blast)
 	{
-		blast.draw();
+		//blast.update();
+		if(blast.radius < 200)
+		{
+			blast.radius += blast.blastSpeed
+		}
+		else
+		{
+			aoeArray.splice(aoeArray.indexOf(blast), 1)
+		}
+		blast.drawBlast()
 	});
 
 	centerColor = "rgb(" +String(center.redCounter)+", 0, 0)";
@@ -131,6 +135,13 @@ var render = function (deltaTime)
 	center.draw()
 
 	pad.draw()
+
+
+
+	aoeArray.forEach(function(blast)
+	{
+		blast.drawBlast();
+	});
    
     turnedArray.forEach(function(turned)
     {
@@ -150,7 +161,7 @@ var render = function (deltaTime)
 		for (var e = 0; e < ballArray.length; e++)
 		{
 			var ball2 = ballArray[e]
-			//console.trace(ball2)
+
 			if (ball2 != turned)
 			{
 				if (turned.testCollision(ball2) == true)
@@ -163,7 +174,6 @@ var render = function (deltaTime)
 		for (var f = 0; f < turnedArray.length; f++)
 		{
 			var ballf = turnedArray[f]
-			//console.trace(ballf)
 			if (ballf != turned)
 			{
 				if (turned.testCollision(ballf) == true)
@@ -251,10 +261,10 @@ var render = function (deltaTime)
 		laser.drawLaser()
 	});
 
-
-
 	ctx.font="30px Georgia";
 	ctx.fillText(String(Math.floor((Date.now()-startTime)/1000)),100,200)
+
+
 };
 
 var startTime = Date.now();
@@ -285,6 +295,8 @@ var centerColor = "rgb(82, 92 ,209)"; //(R,G,B)
 var pad = new Pad()
 
 // Let's play this game!
+var music = new Audio("music/The Helix Dunno Edition.mp3");
+music.play()
 var then = Date.now();
 main();
 
@@ -334,6 +346,7 @@ function Center()
 	}
 }
 
+
 function Ball() 
 {
 	this.spawn = function(speed)
@@ -356,6 +369,8 @@ function Ball()
 
 	this.turn = function()
 	{
+		var snd = new Audio("sound/Interface1.wav");
+		snd.play()
 		ballArray.splice(ballArray.indexOf(this), 1)
 		turnedArray[turnedArray.length] = this
 
@@ -401,7 +416,6 @@ function Ball()
 
 	this.handleCollision = function(ball2, statusChange)
 	{
-		console.trace("Kræsj")
 		var dx = ball2.x-this.x
 		var dy = this.x-ball2.y
 		var distance = this.radius + ball2.radius
@@ -511,11 +525,14 @@ function Laser()
 {
 	this.spawn = function(speed)
 	{
+		var snd = new Audio("sound/Menu1.wav");
+		snd.play()
+
 		center.reloading = true
 		center.redCounter = Math.min(center.redCounter + 100, 255)
-		//console.trace(center.redCounter)
+		
 		this.flightCounter = 0
-		this.radius = 7
+
 		this.speed = speed
 
 		this.color = laserColor
@@ -531,8 +548,9 @@ function Laser()
 	 	this.startX = this.x
 	 	this.startY = this.y
 
-		var dx = this.radius + this.x - (event.clientX + document.body.scrollLeft)
+		var dx = this.x + this.radius - (event.clientX + document.body.scrollLeft)
 	   	var dy = event.clientY + document.body.scrollTop - this.y - this.radius
+	   	dy -= 35
 
 	   	this.a = dy/dx
 	    this.b = this.y - this.a*this.x
@@ -564,7 +582,7 @@ function Laser()
 		ctx.fillStyle = this.color;
          
         ctx.beginPath();
-         
+        
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
         ctx.fill();
          
@@ -578,50 +596,42 @@ function keyboard(e)
 {
 	if(e.keyCode === 87) //32 = space
 	{
+		console.trace("Spawned blast")
 		var blast = new AoEBlast();
 		blast.spawn();
 	}
 }
 
 //var blastColor = '#D424BF';
-var blastColor = '#ff0000';
+//var blastColor = '#ff0000';
 
-var blastRadius = center.radius;
+
 
 function AoEBlast()
 {
 	this.spawn = function()
 	{
 		//var startBlastTime = Date.now();
-
-		this.color = blastColor;
-		this.radius = 200;
-		this.x = center.x;
-		this.y = center.y;
-
-		var maxRadius = this.radius * 2;
+		var blastRadius = circle.radius;
+		//this.color = '#D424B';
+		this.color = "white"
+		this.radius = circle.radius;
+		this.x = circle.x;
+		this.y = circle.y;
+		this.blastSpeed = 10
 
 		aoeArray[aoeArray.length] = this	
 	};	
 
 	//var timer = Date.now();
 
-	this.update = function()
+	this.drawBlast = function()
 	{
-		//timer -= startBlastTime / 1000;
 
-		while(this.radius < maxRadius)
-		{
-			radius += .5;
-		}
-	};
-
-	this.draw = function()
-	{
-		ctx.fillStyle = blastColor;
+		ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
          
         ctx.beginPath();
-         
+        console.trace(1111);
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
         ctx.fill();
          
