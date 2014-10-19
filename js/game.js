@@ -259,8 +259,9 @@ var render = function (deltaTime)
         		ball.turn()
 
         		var now = Date.now()
-        		console.trace(now, comboThen, (now-comboThen)/1000)
-				if ((now-comboThen)/1000 <= 1)
+        		console.trace((now-comboThen)/10000)
+        		console.trace((now-comboThen)/1000)
+				if ((now-comboThen)/10000 < 1)
         		{
         			
         			comboThen = now
@@ -295,7 +296,7 @@ var render = function (deltaTime)
         	{
         		var now = Date.now()
 
-				if (Math.floor((now-comboThen)/10000) <= 1)
+				if (Math.floor((now-comboThen)/100) <= 1)
         		{
         			comboThen = now
         			comboStage += 1
