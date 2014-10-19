@@ -27,18 +27,21 @@ function load() {
 	player.load(ctx.canvas.width/2 + 50, ctx.canvas.height/2 + 50, 50);
 
 	ballFactory = new Ballfactory();
+}
 
 
 //updates the frame
 function update(deltaTime) {
 	player.update(deltaTime);
 	ballFactory.update(deltaTime);
+}
 
 
 //draws the frame to the canvas
 function render() {
 	ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
 	player.render(ctx);
+}
 
 
 
@@ -54,6 +57,7 @@ function main() {
 
 
 	requestAnimationFrame(main);
+}
 
 
 
@@ -69,6 +73,7 @@ function startGame() {
 	load();
 
 	main();
+}
 
 
 

@@ -7,12 +7,6 @@ document.body.appendChild(canvas);
 
 
 // Game objects
-var circle = 
-{
-	radius: 47,
-	x: canvas.width / 2 + 47,
-	y: canvas.height / 2 + 47
-}
 
 center = new Center()
 
@@ -46,29 +40,6 @@ function drawRotatedImage(image, x, y, angle)
 
 
 
-addEventListener("mousemove", function (e) 
-{
-
-	var dx = event.clientX + document.body.scrollLeft - (canvas.width * 0.5 + 50)
-	var dy = canvas.height * 0.5 + 50  - event.clientY - document.body.scrollTop
-	var distance = Math.sqrt(dx * dx + dy * dy)
-	var angle = 0
-	if (dy > 0)
-	{
-		 angle = Math.PI / 2 - Math.acos(dx / distance)
-	}
-	else
-	{
-		angle = Math.PI / 2 + Math.acos(dx / distance)
-	}
-
-	pad.x = circle.x
-	pad.y = circle.y
-
-	pad.rotation = angle
-	pad.visualRotation = angle - Math.PI/2
-
-}, false);
 
 var spawnCount = 0;
 
@@ -78,35 +49,92 @@ var ballArray = []
 var wasteArray = []
 var ballRadius = 7
 var turnedArray = []
+var fighterArray = []
+var shotArray = []
 
 var laserArray = []
+
+var circle = 
+{
+	radius: 50,
+	x: canvas.width/2,
+	y: canvas.height/2
+}
+
+var rect = canvas.getBoundingClientRect();
+var mouseX = 0
+var mouseY = 0
 function doMouseDown(event)
 {
 	if (center.redCounter < 200)
-	{var laser = new Laser();
-	laser.spawn(6);}
+	{
+		var numLasers = 5
+		var angleError = -0.1
+		for (l = 0; l < numLasers; l++)
+		{
+			var laser = new Laser();
+			laser.spawn(angleError);
+			angleError += 0.05
+		}	
+	}
+
+	// TESTING
+
+	var sx = circle.x
+	var sy = circle.y
+	console.log("Mouse Coordinates: ", mouseX, mouseY)
+	console.log("Pad Rotation: ", pad.testRotation)
 	
 }
+
+
+addEventListener("mousemove", function (e) 
+{
+	mouseX = event.clientX - rect.left + document.body.scrollLeft;
+	mouseY = event.clientY - rect.top + document.body.scrollTop;
+
+	var dx = mouseX - circle.x
+	var dy = circle.y - mouseY
+	var distance = Math.sqrt(dx * dx + dy * dy)
+	var angle = 0
+
+	angle = Math.atan2(-dy, dx)
+	
+	pad.x = circle.x
+	pad.y = circle.y
+
+	pad.rotation = angle
+	pad.visualRotation = angle
+	pad.testRotation = 180 + 180 * -angle / Math.PI 
+
+}, false);
 
 var spawnLimit = 0.005
 
 var aoeArray = [] 
+var gameOver = false
+var survivedSeconds = 0
+var ballSpeed = 2
+
+var bar = new jetBar();
 
 // Update game objects
 var update = function (modifier) 
 {
-	if (Math.random() < spawnLimit)
+	if (Math.random() < spawnLimit && gameOver == false)
 	{
 		var ball = new Ball();
-		ball.spawn(2);
+		ball.spawn(ballSpeed);
 		spawnLimit += 0.0003
-
-
 	}
-};
+	if(fighterBar <= fighterBarMax)
+	{
+		fighterBar += 0.01;
+	}
+	
+	//console.trace(fighterBar);
 
-var circleX = canvas.width / 2
-var circleY = canvas.height / 2
+};
 
 // Draw everything
 var render = function (deltaTime) 
@@ -116,16 +144,31 @@ var render = function (deltaTime)
 	ctx.fillStyle = '#36A8E0';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+	bar.drawLine(fighterBar);
+
 	aoeArray.forEach(function(blast)
 	{
 		//blast.update();
-		if(blast.radius < 200)
+		if(blast.radius < blast.maxBlastRadius)
 		{
 			blast.radius += blast.blastSpeed
 		}
 		else
 		{
 			aoeArray.splice(aoeArray.indexOf(blast), 1)
+
+			for (var b = 0; b < ballArray.length; b++)
+			{
+				var ball5 = ballArray[b]
+				var dx = ball5.x -circle.y
+				var dy = circle.y  - ball5.y
+				var distance = Math.sqrt(dx * dx + dy * dy)
+				
+				if (distance < blast.maxBlastRadius)
+				{
+					ballArray.splice(b, 1)
+				}
+			}
 		}
 		blast.drawBlast()
 	});
@@ -135,13 +178,6 @@ var render = function (deltaTime)
 	center.draw()
 
 	pad.draw()
-
-
-
-	aoeArray.forEach(function(blast)
-	{
-		blast.drawBlast();
-	});
    
     turnedArray.forEach(function(turned)
     {
@@ -185,6 +221,13 @@ var render = function (deltaTime)
 
 		turned.draw()
 	});
+
+	if(gameOver == true)
+	{
+		ctx.fillStyle = "black"
+		ctx.font="20px Tekton Pro";
+		ctx.fillText("You survived "+survivedSeconds+" seconds of invading balls. Press SPACE to try again.",200,canvas.height /2)
+	}
     	
      
     ballArray.forEach(function(ball)
@@ -196,7 +239,14 @@ var render = function (deltaTime)
          
         if (ball.flightCounter == Math.round(ball.crashTime) && ball.expectedToCrash == true)
         {
-        	if (Math.abs(ball.crashAngle-pad.rotation) < Math.PI/2)
+        	var Dangle = Math.abs(ball.crashAngle-pad.rotation)
+			
+			if(Dangle > Math.PI) 
+			{
+				Dangle = 2*Math.PI - Dangle
+			}
+
+        	if (Dangle < Math.PI/4)
         	{
         		//ball.giveDirection(ball.spawnX, ball.spawnY, false)
         		ball.turn()
@@ -204,42 +254,44 @@ var render = function (deltaTime)
         	
         	else
         	{
+        		//console.trace("SLIPTHROUGH: ", ball.crashAngle, pad.rotation, Math.abs(ball.crashAngle-pad.rotation))
 	        	circle.radius -= 5
-	        	center.x-=5
-	        	center.y-=5
+	        	//console.trace("Edited circle posision: ", circle.radius, circle.x, circle.y)
+	        	//circle.x -= 5
+	        	//circle.y -= 5
 	        	ballArray.splice(ballArray.indexOf(ball),1)
 	        	pad.draw()
+
+	        	if (circle.radius <= 0)
+	        	{
+
+	        		gameOverFunction(Math.floor((Date.now()-startTime)/1000));
+
+
+	        		gameOver = true
+	        		ballArray = []
+	        		aoeArray = []
+	        		turnedArray = []
+	        		shotArray = []
+	        		fighterArray = []
+	        		center.x = 4000
+	        		center.y = 4000
+	        		circle.x = 4000
+	        		circle.y = 4000
+	        		circle.radius = 200
+	        		pad.x = 4000
+	        		pad.y = 4000
+	        		
+	        		/*
+	        		// Game over
+	        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
+	        		*/
+	        	}
         	}
         }
        
         ball.draw();
 	});
-
-	/*wasteArray.forEach(function(waste)
-    {
-    	//console.trace(waste.testCollision(circle) == true)
-    	if (waste.testCollision(circle) == true)
-    	{
-    		waste.vector[0] = -waste.vector[0]
-    		waste.vector[1] = -waste.vector[1]
-    	}
-
-    	for (var r = 0; r < ballArray.length; r++)
-		{
-			var ball4 = ballArray[r]
-
-			if (ball4 != waste)
-			{
-				if (waste.testCollision(ball4))
-				{
-					waste.handleCollision(ball4)
-				}
-			}
-			//console.trace(ball4)
-			
-		}
-
-	});*/
 
 	laserArray.forEach(function(laser)
 	{
@@ -261,13 +313,114 @@ var render = function (deltaTime)
 		laser.drawLaser()
 	});
 
-	ctx.font="30px Georgia";
-	ctx.fillText(String(Math.floor((Date.now()-startTime)/1000)),100,200)
+	shotArray.forEach(function(shot)
+	{
+		//console.trace("Moving shot: ", shot.speed, shot.xDif, shot.Target)
+		
+		if (shot.Target != false)
+		{
 
+			shot.x += shot.speed * shot.xDif;
+			shot.y += shot.speed * shot.yDif;
 
+			if (Math.sqrt((shot.Target.x-shot.x)*(shot.Target.x-shot.x)+(shot.y-shot.Target.y)*(shot.y-shot.Target.y)) < shot.parentPlane.sideLength + shot.Target.radius)
+			{
+				try
+				{
+					shot.parentPlane.hunting = false;
+					shot.parentPlane.speed = shot.parentPlane.slowspeed;
+				}
+				catch (e)
+				{
+					trace("nf error");
+				}
+				
+				if (shot.Target.destroyed == false)
+				{
+					shot.Target.destroyed = true
+					//console.trace(shot.Target.destroyed)
+					//console.trace(ballArray.indexOf(shot.Target));
+					if (ballArray.indexOf(shot.Target) != -1)
+					{
+						ballArray.splice(ballArray.indexOf(shot.Target), 1);
+					}
+					shotArray.splice(shotArray.indexOf(shot), 1)
+					shot.parentPlane = false;
+				}
+			}
+			shot.drawShot()
+		}
+	});
+
+	fighterArray.forEach(function(fighter)
+	{
+		//trace("Fighter: ", fighter.x, fighter.y);
+		if (fighter.leaving == false)
+		{
+			if (fighter.hunting == true && fighter.ready == true)
+			{
+				fighter.calculateRoute(fighter.Target);
+			}
+			else 
+			{
+				fighter.searchForTarget();
+			}
+		}
+
+		else
+		{
+			fighter.disAppear()
+		}
+		fighter.drawFighter()
+		
+	});
+
+	if(gameOver == false)
+	{
+		ctx.fillStyle = "black"
+		ctx.font="30px Tekton Pro";
+		ctx.fillText(String(Math.floor((Date.now()-startTime)/1000)),100,200)
+	}
+
+	
+	ctx.fillStyle = 'rgba('+String(a)+','+String(b)+','+String(c)+',0.4)';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	if (increasing == "a")
+	{
+		a+= 1
+		b-=1
+		if (a == 255)
+		{
+			increasing = "b"
+		}
+	}
+	else if (increasing == "b")
+	{
+		b+= 1
+		c-=1
+		if (b == 255)
+		{
+			increasing = "c"
+		}
+	}
+	else
+	{
+		c+= 1
+		a-=1
+		if (c == 255)
+		{
+			increasing = "a"
+		}
+	}
 };
 
 var startTime = Date.now();
+var aCounter = 1
+var increasing = "a"
+var a = 0
+var b = 255
+var c = 255
 
 // The main game loop
 var main = function () 
@@ -295,6 +448,12 @@ var centerColor = "rgb(82, 92 ,209)"; //(R,G,B)
 var pad = new Pad()
 
 // Let's play this game!
+var songArray = [    
+
+
+
+]
+var songCounter = 0
 var music = new Audio("music/The Helix Dunno Edition.mp3");
 music.play()
 var then = Date.now();
@@ -305,22 +464,10 @@ function Pad()
 	this.draw = function()
 	{
 		ctx.fillStyle = ballColor;
-         
-        /*ctx.beginPath();
-         
-        ctx.arc(pad.x, pad.y, circle.radius, pad.rotation - Math.PI/2, pad.rotation, false);
-        ctx.fill();
-         
-        ctx.closePath();
-
-        ctx.moveTo(pad.x,pad.y);
-		ctx.arc(pad.x,pad.y,circle.radius,pad.rotation - Math.PI/6 - Math.PI/2 ,pad.rotation + Math.PI/6 - Math.PI/2);
-		ctx.lineTo(pad.x,pad.y);
-		ctx.stroke(); // or context.fill()*/
 
 		ctx.beginPath();
       	ctx.arc(pad.x, pad.y, circle.radius+5, pad.visualRotation - Math.PI/4, pad.visualRotation + Math.PI/4, false);
-      	ctx.lineWidth = 10;
+      	ctx.lineWidth = 10
 
       	// line color
       	ctx.strokeStyle = 'green';
@@ -338,7 +485,7 @@ function Center()
 		ctx.fillStyle = centerColor;
          
         ctx.beginPath();
-         
+
         ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI*2, false);
         ctx.fill();
          
@@ -351,35 +498,82 @@ function Ball()
 {
 	this.spawn = function(speed)
 	{
+		this.destroyed = false;
 		this.expectedToCrash = true
-
+		this.beingTargeted = false
 		this.friendly = false
 		this.radius = 7
 		this.color = ballColor
 		var rNumber = Math.random()
-		this.x = canvas.width / 2 + 400*Math.cos(rNumber* 2 * Math.PI)
-	 	this.y = canvas.height / 2 + 400*Math.sin(rNumber * 2 * Math.PI)
+		this.x = circle.x + 400*Math.cos(rNumber* 2 * Math.PI)
+	 	this.y = circle.y + 400*Math.sin(rNumber * 2 * Math.PI)
 	 	this.spawnX = this.x
 	 	this.spawnY = this.y
 	 	this.speed = speed
 	    ballArray[ballArray.length] = this
 
-	    this.giveDirection((canvas.width * 0.5 + 50), (canvas.height * 0.5 + 50), true)
+	    this.giveDirection((circle.x), (circle.y), true)
+	}
+
+	this.giveDirection = function(toX, toY, expectedToCrash)
+	{
+		this.flightCounter = 0;
+		this.expectedToCrash = expectedToCrash
+	 	this.startX = this.x
+	 	this.startY = this.y
+		   
+	  	//var dx = this.radius + this.x - (canvas.width * 0.5 + 50)
+	   	//var dy = canvas.height * 0.5 + 50  - this.y - this.radius
+	   	var dx = this.x - toX
+	   	var dy = toY  - this.y
+
+	   	this.a = dy/dx
+	    this.b = this.y - this.a*this.x
+
+	    this.absvector = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+		this.vector = [-this.speed * dx / this.absvector,-this.speed * dy / this.absvector];
+
+		if (expectedToCrash == true)
+		{
+			var circleHit = circle.radius + 10
+			var sx = this.x - circle.x
+		   	var sy = circle.y  - this.y
+		   	
+			this.crashTime = -(Math.sqrt(-4*(this.vector[0]*this.vector[0]+this.vector[1]*this.vector[1])*(-(this.radius + circleHit)*(this.radius + circleHit)+sx*sx+sy*sy) + (2*sx*this.vector[0]+2*sy*this.vector[1])*(2*sx*this.vector[0]+2*sy*this.vector[1]))+2*sx*this.vector[0]+2*sy*this.vector[1])/(2*this.vector[0]*this.vector[0]+2*this.vector[1]*this.vector[1])
+			var distance = Math.sqrt(dx * dx + dy * dy)
+
+			this.crashAngle = -Math.atan2(dy, dx)
+			this.testCrashAngle = 180 + 180 * -this.crashAngle / Math.PI
+
+
+			/*var expectedX = this.x+this.vector[0]*this.crashTime
+			var expectedY = this.y-this.vector[1]*this.crashTime
+			var expectedXDistance = this.x+this.vector[0]*this.crashTime-circle.x
+			var expectedYDistance = this.y-this.vector[1]*this.crashTime-circle.y
+			if (Math.abs(Math.sqrt(expectedXDistance*expectedXDistance+expectedYDistance*expectedYDistance)- circleHit) > 10)
+			{
+				ballArray.splice(ballArray.indexOf(this))
+				this.destroyed == true
+			}*/
+			//console.trace(circleHit, Math.sqrt(expectedXDistance*expectedXDistance+expectedYDistance*expectedYDistance))
+		}
 	}
 
 	this.turn = function()
 	{
+		this.destroyed = true;
 		var snd = new Audio("sound/Interface1.wav");
 		snd.play()
 		ballArray.splice(ballArray.indexOf(this), 1)
 		turnedArray[turnedArray.length] = this
-
+		this.friendly = true
 		this.color = "#0000ff"
 
 		this.crashAngle -= Math.PI / 2
 
 		this.circleCounter = 0
 		this.circleSpeed = 1 / (100)
+		this.orbitRadius = 100+200*Math.random()
 
 		//this.x = (canvas.width * 0.5 + 50) + 100 * Math.cos((this.crashAngle));
 		//this.y = (canvas.height * 0.5 + 50) + 100 * Math.sin((this.crashAngle));
@@ -390,8 +584,8 @@ function Ball()
 
 	this.moveIntoOrbit = function()
 	{
-		var refX = canvas.width * 0.5 + 50 + 300*Math.cos(this.circleCounter + this.crashAngle)
-		var refY = canvas.height * 0.5 + 50 + 300*Math.sin(this.circleCounter + this.crashAngle)
+		var refX = circle.x + this.orbitRadius*Math.cos(this.circleCounter + this.crashAngle)
+		var refY = circle.y + this.orbitRadius*Math.sin(this.circleCounter + this.crashAngle)
 
 		this.errorSpeedX = refX-this.x
 		this.errorSpeedY = refY-this.y
@@ -462,47 +656,7 @@ function Ball()
 		
 	}
 
-	this.giveDirection = function(toX, toY, expectedToCrash)
-	{
-		this.flightCounter = 0;
-		this.expectedToCrash = expectedToCrash
-	 	this.startX = this.x
-	 	this.startY = this.y
-		   
-	  	//var dx = this.radius + this.x - (canvas.width * 0.5 + 50)
-	   	//var dy = canvas.height * 0.5 + 50  - this.y - this.radius
-	   	var dx = this.radius + this.x - toX
-	   	var dy = toY  - this.y - this.radius
-
-	   	this.a = dy/dx
-	    this.b = this.y - this.a*this.x
-
-	    this.absvector = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
-		this.vector = [-this.speed * dx / this.absvector,- this.speed * dy / this.absvector];
-
-		if (expectedToCrash == true)
-		{
-			var sx = this.x - (canvas.width * 0.5 + 50)
-		   	var sy = canvas.height * 0.5 + 50  - this.y
-		   	var circleHit = circle.radius + 10
-			
-			// hehehhe:
-			this.crashTime = -(Math.sqrt(-4*(this.vector[0]*this.vector[0]+this.vector[1]*this.vector[1])*(-(this.radius + circleHit)*(this.radius + circleHit)+sx*sx+sy*sy) + (2*sx*this.vector[0]+2*sy*this.vector[1])*(2*sx*this.vector[0]+2*sy*this.vector[1]))+2*sx*this.vector[0]+2*sy*this.vector[1])/(2*this.vector[0]*this.vector[0]+2*this.vector[1]*this.vector[1])
-
-			this.crashAngle = Math.cos(-dx / Math.sqrt(dx*dx + dy*dy))
-
-			var distance = Math.sqrt(dx * dx + dy * dy)
-
-			if (dy > 0)
-			{
-				 this.crashAngle = Math.PI / 2 - Math.acos(dx / distance)
-			}
-			else
-			{
-				this.crashAngle = Math.PI / 2 + Math.acos(dx / distance)
-			}
-		}
-	}
+	
 
  	this.draw = function() 
  	{
@@ -523,40 +677,39 @@ var laserColor = '#ff0000';
 
 function Laser()
 {
-	this.spawn = function(speed)
+	this.spawn = function(angleError)
 	{
 		var snd = new Audio("sound/Menu1.wav");
 		snd.play()
 
 		center.reloading = true
-		center.redCounter = Math.min(center.redCounter + 100, 255)
+		center.redCounter = Math.min(center.redCounter + 40, 255)
 		
 		this.flightCounter = 0
 
-		this.speed = speed
+		this.speed = 15
 
 		this.color = laserColor
-		this.radius = 7
+		this.radius = 4
 
 		this.x = pad.x
 		this.y = pad.y
 
-		this.rotation = pad.rotation
+		this.rotation = pad.rotation + angleError
 
 		laserArray[laserArray.length] = this
 
 	 	this.startX = this.x
 	 	this.startY = this.y
 
-		var dx = this.x + this.radius - (event.clientX + document.body.scrollLeft)
-	   	var dy = event.clientY + document.body.scrollTop - this.y - this.radius
-	   	dy -= 35
+		var dx = this.x - mouseX
+	   	var dy = mouseY - this.y
 
 	   	this.a = dy/dx
 	    this.b = this.y - this.a*this.x
 
-	    this.absvector = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
-		this.vector = [-this.speed * dx / this.absvector,- this.speed * dy / this.absvector];
+	    //this.absvector = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+		this.vector = [this.speed * Math.cos(this.rotation),- this.speed * Math.sin(this.rotation)];
 	}
 
 	this.testCollision = function(ball2)
@@ -566,7 +719,7 @@ function Laser()
 
 		var distance = Math.sqrt(dx*dx+dy*dy)
 
-		if (distance < ball2.radius + this.radius)
+		if (distance < ball2.radius + this.radius + 7)
 		{
 			return true
 		}
@@ -592,13 +745,35 @@ function Laser()
 
 addEventListener("keydown", keyboard, true);
 
+var fighterBar = 0;
+var fighterBarMax = 40;
+
 function keyboard(e)
 {
 	if(e.keyCode === 87) //32 = space
 	{
-		console.trace("Spawned blast")
-		var blast = new AoEBlast();
-		blast.spawn();
+		// W
+		if(center.redCounter === 0)
+		{
+			var blast = new AoEBlast();
+			blast.spawn();
+		}
+		
+	}
+	else if (e.keyCode == 69 && fighterBar >= fighterBarMax)
+	{
+		// E
+		var fighter = new Fighter();
+		fighter.spawn();
+		fighterBar = 0;
+	}
+	else if (e.keyCode == 32)
+	{
+		// SPACE
+		if(gameOver == true)
+		{
+			location.reload();
+		}
 	}
 }
 
@@ -611,14 +786,19 @@ function AoEBlast()
 {
 	this.spawn = function()
 	{
+		var blastSound = new Audio('sound/Mail1.wav')
+		blastSound.play()
 		//var startBlastTime = Date.now();
-		var blastRadius = circle.radius;
+		this.maxBlastRadius = 200
 		//this.color = '#D424B';
 		this.color = "white"
 		this.radius = circle.radius;
 		this.x = circle.x;
 		this.y = circle.y;
 		this.blastSpeed = 10
+
+		center.reloading = true
+		center.redCounter = Math.min(center.redCounter + 200, 255)
 
 		aoeArray[aoeArray.length] = this	
 	};	
@@ -631,7 +811,6 @@ function AoEBlast()
 		ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
          
         ctx.beginPath();
-        console.trace(1111);
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
         ctx.fill();
          
@@ -641,9 +820,256 @@ function AoEBlast()
 }
 
 
+function Fighter()
+{
+	this.spawn = function()
+	{
+		this.color = "red"
+		this.sideLength = 10
+
+		this.hunting = false;
+		this.lasts = 30 //seconds
+		this.leaving = false;
+		this.ready = false
+		this.Target = false;
+		this.then = Date.now();
+		this.slowspeed = 0.7;
+		this.maxSpeed = 0.9;
+		this.speed = this.slowspeed;
+		this.reload = 0;
+		this.reloadCounter = 30;
+		this.huntingRange = 400;
+		this.shotsFired = false;
+		
+		this.vector_x = 0;
+		this.vector_y = 0;
+		this.absvector = 0;
+		this.radius = 5;
+
+		var dx = -circle.x + mouseX
+	   	var dy = circle.y - mouseY
+	   	var distance = Math.sqrt(dy*dy+dx*dx)
+
+	   	this.rotation = -Math.atan2(dy, dx) + (Math.PI/2)
+
+		this.vector = [this.speed * Math.cos(-Math.atan2(dy, dx)), this.speed * Math.sin(-Math.atan2(dy, dx))];
+
+		this.x = circle.x + circle.radius * Math.cos(this.rotation-Math.PI/2)
+		this.y = circle.y + circle.radius * Math.sin(this.rotation-Math.PI/2)
+			
+		this.rotAks = 0.02;
+		this.degrees = 0;
+
+		//console.trace(this.rotation, this.x, this.y, this.vector[0])
+
+		fighterArray[fighterArray.length] = this
+
+	};	
+
+	this.calculateRoute = function(target)
+	{
+		//console.trace("calculating route")
+		this.Target = target
+
+		if (target.friendly == true)
+		{
+			this.Target = false
+			this.hunting = false
+			return
+		}
+		target.beingTargeted = false
+		
+		this.vector_x = this.Target.x - this.x;
+		this.vector_y = this.Target.y - this.y;
+			
+		this.absvector = Math.sqrt(Math.pow((this.vector_x),2) + Math.pow((this.vector_y),2));
+		this.vector = [this.speed*this.vector_x / this.absvector,this.speed*this.vector_y / this.absvector];
+		
+		this.x += this.vector[0];
+		this.y += this.vector[1];
+			
+		if (this.absvector < 270)
+		{
+			this.speed = this.slowspeed;
+		}
+			
+		else
+		{
+			this.speed = this.maxSpeed;
+		}
+			
+		if (this.absvector < 300)
+		{
+			this.reload += 1;
+			//trace("Reloading: ", this.reload);
+			if (this.reload == this.reloadCounter)
+			{
+				//console.trace("FIRING");
+				var shot = new Shot();
+				shot.spawn(this.x, this.y, this.vector[0], this.vector[1], this.rotation, this.Target, this)
+				this.shotsFired = true; 	
+				this.reload = 0;
+			}
+		}
+			
+		this.rotation = Math.PI/2 + Math.atan2(this.vector[1], this.vector[0])// + (Math.PI/2) * (Math.abs(this.vector[0])/this.vector[0]);
+	
+		if (Math.floor((Date.now()-this.then)/1000) == this.lasts)
+		{
+			this.leaving = true
+			this.flightCounter = 0
+
+			var dx = -circle.x + mouseX
+	   		var dy = circle.y - mouseY
+			
+			this.degrees = Math.atan2(dy, dx);
+		}
+	};	
+
+
+	this.searchForTarget = function()
+	{
+		this.vector[0] = this.vector[0]*0.99
+		this.vector[1] = this.vector[1]*0.99
+
+		if(Math.sqrt(this.vector[0]*this.vector[0]+this.vector[1]*this.vector[1]) < 0.2)
+		{
+			this.ready = true
+		}
+		this.x += this.vector[0];
+		this.y += this.vector[1];
+
+		var flightCounterIndex = 1000
+
+		for (var cc = 0; cc < ballArray.length; cc++)
+		{
+			var ball6 = ballArray[cc]
+			if (ball6.beingTargeted == false && ball6.flightCounter < flightCounterIndex && Math.sqrt(Math.pow((ball6.x - this.x),2) + Math.pow((this.y - ball6.y),2)) < this.huntingRange)
+			{
+				flightCounterIndex = ball6.flightCounter;
+				this.Target = ball6;
+			}
+		}
+		
+		if (flightCounterIndex != 1000)
+		{
+			this.hunting = true;
+		}
+		//console.trace(Math.floor((Date.now()-this.then)/1000), this.lasts)
+
+		if (Math.floor((Date.now()-this.then)/1000) == this.lasts)
+		{
+			this.leaving = true
+			this.flightCounter = 0
+
+			var dx = -circle.x + mouseX
+	   		var dy = circle.y - mouseY
+			
+			this.degrees = Math.atan2(dy, dx);
+		}
+
+	}
+
+	this.disAppear = function()
+	{	
+		this.flightCounter+= 1
+		//console.trace("Disappearing")
+		var er = this.degrees-this.rotation
+
+		this.rotation -= er*this.rotAks
+		this.vector[0] = this.speed * Math.cos(this.rotation)
+		this.vector[1] = this.speed * Math.sin(this.rotation)
+
+		this.x += this.vector[0]
+		this.y += this.vector[1]
+
+		if(this.flightCounter == 1000)
+		{
+			fighterArray.splice(fighterArray.indexOf(this))
+		}
+	};
+	
+
+	this.drawFighter = function()
+	{	
+		var v = [[0,-10],[-10,0],[10,0]]
+		//console.trace("Tracing fighter", this.x, this.y, this.rotation, this.sideLength)
+		ctx.save(); 
+		ctx.fillStyle = "green"
+
+    	ctx.translate(this.x,this.y);
+	    ctx.rotate(this.rotation);
+	    ctx.beginPath();
+	    ctx.moveTo(v[0][0],v[0][1]);
+	    ctx.lineTo(v[1][0],v[1][1]);
+	    ctx.lineTo(v[2][0],v[2][1]);
+	    ctx.closePath();
+	    ctx.fill();
+	    ctx.restore();
+	};
+	
+}
 
 
 
+function Shot()
+{
+	this.spawn = function(xStart, yStart, xDif, yDif, rot, Target, pPlane)
+	{
+		//console.trace("Spawned shot")
+		this.Error = 0.2
+		this.speed = 15
+		this.x = xStart
+		this.y = yStart
+		this.xStart = xStart 
+		this.yStart = yStart 
+		this.xDif = xDif + Math.random()*this.Error
+		this.yDif = yDif- Math.random()*this.Error
+		this.rotation = rot
+		this.Target = Target
+		this.parentPlane = pPlane
+
+		shotArray[shotArray.length] = this
+	};	
+
+	//var timer = Date.now();
+
+	this.drawShot = function()
+	{
+
+		ctx.fillStyle = "blue"
+         
+        ctx.beginPath();
+       // console.trace(1111);
+        ctx.arc(this.x, this.y, 4, 0, Math.PI*2, false);
+        ctx.fill();
+         
+        ctx.closePath();
+	};
+	
+}
+
+function jetBar(){
+	this.x = 0;
+	this.y = 8;
+
+	this.color = 'green';
+
+	this.drawLine = function(length){
+		ctx.fillStyle = this.color;
+
+		ctx.beginPath();
+
+		ctx.moveTo(this.x, this.y);
+		ctx.lineTo(this.x + length * (30 + 2), this.y);
+		ctx.lineWidth = 15;
+
+		ctx.stroke();
+	}
+}
 
 
+//gameOver
+function gameOverFunction(sec){
 
+}

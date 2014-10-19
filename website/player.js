@@ -47,7 +47,7 @@ var Player = function (){
 	this.drawPad = function(ctx) {
 		ctx.strokeStyle="#FF0000";
 		ctx.beginPath();
-		ctx.arc(this.x, this.y, this.hp+20, (padAngle - (Math.PI / 4)) - Math.PI / 2, (padAngle + (Math.PI / 4)) - Math.PI / 2);
+		ctx.arc(this.x, this.y, this.hp+10, (padAngle - (Math.PI / 4)) - Math.PI / 2, (padAngle + (Math.PI / 4)) - Math.PI / 2);
 		ctx.stroke();
 	};
 

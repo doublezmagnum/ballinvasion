@@ -9,6 +9,7 @@ var Ballfactory = function() {
 		currentCooldown += deltatime;
 		if(currentCooldown >= cooldown) {
 			this.spawn();
+		}
 		
 	}
 
@@ -31,6 +32,7 @@ var Ballfactory = function() {
 var Ball = function() {
 	x = 0;
 	y = 0;
+	radius = 7;
 	speed = 0; //positive speed means the ball is approaching
 	distance = 0;
 	isFriendly = false;
@@ -53,6 +55,13 @@ var Ball = function() {
 			//y = distance * sin(angle)
 	};
 	this.draw = function(ctx) {
-		//draw ball at x, y
+		ctx.fillStyle = this.color;
+         
+        ctx.beginPath();
+         
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
+        ctx.fill();
+         
+        ctx.closePath();
 	};
 };
