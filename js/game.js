@@ -257,11 +257,11 @@ var render = function (deltaTime)
         	{
         		//ball.giveDirection(ball.spawnX, ball.spawnY, false)
         		ball.turn()
-
+        		var ComboThen = comboThen
         		var now = Date.now()
-        		console.trace((now-comboThen)/10000)
-        		console.trace((now-comboThen)/1000)
-				if ((now-comboThen)/10000 < 1)
+        		console.trace((now-ComboThen)/10000)
+        		console.trace((now-ComboThen)/1000)
+				if ((now-ComboThen)/1000 <= 2)
         		{
         			
         			comboThen = now
@@ -285,8 +285,15 @@ var render = function (deltaTime)
         				circle.radius += comboHits*5
         			}
         		}
+        		else if  (comboStage == 0)
+        		{
+        			ComboThen = now
+        			comboHits += 1
+        			comboStage+=1
+        		}
         		else
         		{
+        			ComboThen = now
         			comboHits = 0
         			comboStage = 0
         		}
@@ -294,11 +301,11 @@ var render = function (deltaTime)
         	
         	else
         	{
-        		var now = Date.now()
+        		var now2 = Date.now()
 
-				if (Math.floor((now-comboThen)/100) <= 1)
+				if (Math.floor((now2-ComboThen)/1000) <= 2)
         		{
-        			comboThen = now
+        			
         			comboStage += 1
 
         			if(comboStage == 4)
@@ -307,20 +314,18 @@ var render = function (deltaTime)
         				//combohits
         				circle.radius += comboHits*5
         			}
+
+        			if (comboStage-comboHits == 2)
+	        		{
+	        			comboStage = 0
+	        			comboHits = 0
+	        		}
         		}
         		else
         		{
         			comboHits = 0
         			comboStage = 0
         		}
-        		if (comboStage-comboHits == 2)
-        		{
-        			comboStage = 0
-        			comboHits = 0
-        		}
-
-        		console.trace(comboStage);
-        		console.trace(comboHits);
 
         		//console.trace("SLIPTHROUGH: ", ball.crashAngle, pad.rotation, Math.abs(ball.crashAngle-pad.rotation))
 	        	circle.radius -= 5
