@@ -115,7 +115,8 @@ addEventListener("mousemove", function (e)
 
 }, false);
 
-var spawnLimit = 0.005
+var spawnLimit = 0.01
+var test = false
 
 var aoeArray = [] 
 var gameOver = false
@@ -258,23 +259,29 @@ var render = function (deltaTime)
         		ball.turn()
 
         		var now = Date.now()
-        		console.log((now-comboThen)/1000)
-				if ((now-comboThen)/1000<= 1)
+        		console.trace(now, comboThen, (now-comboThen)/1000)
+				if ((now-comboThen)/1000 <= 1)
         		{
-        			console.trace(now, comboThen, comboStage, comboHits, comboSounds[comboStage-1])
+        			
         			comboThen = now
+        			
+        			if (comboStage >= 1)
+        			{
+        				try
+        				{
+        					comboSounds[comboStage-1].play()
+        				}
+        				catch (e)
+        				{
+        					console.trace(comboStage)
+        				}
+        			}
         			comboStage += 1
         			comboHits += 1
-        			if (comboStage > 1)
-        			{
-        				comboSounds[comboStage-1].play()
-        			}
         			
-
-        			if(comboStage == 5)
+					if(comboStage == 4)
         			{
-        				// GET HELATH
-        				//combohits
+        				circle.radius += comboHits*5
         			}
         		}
         		else
@@ -288,7 +295,7 @@ var render = function (deltaTime)
         	{
         		var now = Date.now()
 
-				if (Math.floor((now-comboThen)/1000) <= 1)
+				if (Math.floor((now-comboThen)/10000) <= 1)
         		{
         			comboThen = now
         			comboStage += 1
@@ -297,6 +304,7 @@ var render = function (deltaTime)
         			{
         				// GET HELATH
         				//combohits
+        				circle.radius += comboHits*5
         			}
         		}
         		else
@@ -512,8 +520,8 @@ var music = new Audio("music/Mix3.mp3");
 music.play()
 var then = Date.now();
 main();
-var comboSounds = [new Audio("sound/Combo/1.wav"), new Audio("sound/Combo/2.wav"), new Audio("sound/Combo/3.wav"), new Audio("sound/Combo/4.wav")]
-var comboThen = 0
+var comboSounds = [new Audio("sound/Combo/2/1.wav"), new Audio("sound/Combo/2/2.wav"), new Audio("sound/Combo/2/3.wav")]
+var comboThen = Date.now()
 var comboStage = 0
 var comboHits = 0
 
@@ -563,8 +571,17 @@ function Ball()
 		this.radius = 7
 		this.color = ballColor
 		var rNumber = Math.random()
-		this.x = circle.x + 400*Math.cos(rNumber* 2 * Math.PI)
-	 	this.y = circle.y + 400*Math.sin(rNumber * 2 * Math.PI)
+		if (test == true)
+		{
+			this.x = 0
+			this.y = 0
+		}
+		else
+		{
+			this.x = circle.x + 400*Math.cos(rNumber* 2 * Math.PI)
+	 		this.y = circle.y + 400*Math.sin(rNumber * 2 * Math.PI)
+		}
+		
 	 	this.spawnX = this.x
 	 	this.spawnY = this.y
 	 	this.speed = speed
