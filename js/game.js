@@ -378,8 +378,8 @@ var render = function (deltaTime)
 	if(gameOver == false)
 	{
 		ctx.fillStyle = "black"
-		ctx.font="30px Tekton Pro";
-		ctx.fillText(String(Math.floor((Date.now()-startTime)/1000)),100,200)
+		ctx.font="40px Tekton Pro";
+		ctx.fillText(String(Math.floor((Date.now()-startTime)/1000)),canvas.width/2-20,100)
 	}
 
 	
