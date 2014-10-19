@@ -252,18 +252,16 @@ var render = function (deltaTime)
 			{
 				Dangle = 2*Math.PI - Dangle
 			}
-
+			var ComboThen = comboThen
+			var now = survivedSeconds
         	if (Dangle < Math.PI/4)
         	{
         		//ball.giveDirection(ball.spawnX, ball.spawnY, false)
         		ball.turn()
-        		var ComboThen = comboThen
-        		var now = Date.now()
-        		console.trace((now-ComboThen)/10000)
-        		console.trace((now-ComboThen)/1000)
-				if ((now-ComboThen)/1000 <= 2)
+        		
+        		console.trace(now-ComboThen, now, ComboThen)
+				if (survivedSeconds-ComboThen <= 3)
         		{
-        			
         			comboThen = now
         			
         			if (comboStage >= 1)
@@ -287,7 +285,7 @@ var render = function (deltaTime)
         		}
         		else if  (comboStage == 0)
         		{
-        			ComboThen = now
+        			comboThen = now
         			comboHits += 1
         			comboStage+=1
         		}
@@ -301,9 +299,7 @@ var render = function (deltaTime)
         	
         	else
         	{
-        		var now2 = Date.now()
-
-				if (Math.floor((now2-ComboThen)/1000) <= 2)
+        		if (now-ComboThen <= 2)
         		{
         			
         			comboStage += 1
@@ -450,9 +446,11 @@ var render = function (deltaTime)
 
 	if(gameOver == false)
 	{
+		var Now = Date.now()
+		survivedSeconds = Math.floor((Now-startTime)/1000)
 		ctx.fillStyle = "black"
 		ctx.font="40px Tekton Pro";
-		ctx.fillText(String(Math.floor((Date.now()-startTime)/1000)),canvas.width/2-20,100)
+		ctx.fillText(String(Math.floor((Now-startTime)/1000)),canvas.width/2-20,100)
 	}
 
 	
@@ -527,7 +525,7 @@ music.play()
 var then = Date.now();
 main();
 var comboSounds = [new Audio("sound/Combo/2/1.wav"), new Audio("sound/Combo/2/2.wav"), new Audio("sound/Combo/2/3.wav")]
-var comboThen = Date.now()
+var comboThen = 0
 var comboStage = 0
 var comboHits = 0
 
@@ -584,8 +582,8 @@ function Ball()
 		}
 		else
 		{
-			this.x = circle.x + 400*Math.cos(rNumber* 2 * Math.PI)
-	 		this.y = circle.y + 400*Math.sin(rNumber * 2 * Math.PI)
+			this.x = circle.x + 700*Math.cos(rNumber* 2 * Math.PI)
+	 		this.y = circle.y + 700*Math.sin(rNumber * 2 * Math.PI)
 		}
 		
 	 	this.spawnX = this.x
