@@ -7,7 +7,7 @@ var w = window;
 requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
 
 canvas.width = w.innerWidth;
-canvas.height = w.innerHeight;
+canvas.height = w.innerHeight-5;
 document.body.appendChild(canvas);
 
 
@@ -25,32 +25,13 @@ var pad =
 
 function drawRotatedImage(image, x, y, angle) 
 { 
- 
-	// save the current co-ordinate system 
-	// before we screw with it
 	ctx.save(); 
- 
-	// move to the middle of where we want to draw our image
 	ctx.translate(x, y);
- 
-	// rotate around that point, converting our 
-	// angle from degrees to radians 
 	ctx.rotate(angle);
- 
-	// draw it up and to the left by half the width
-	// and height of the image 
 	ctx.drawImage(image, -(image.width/2), -(image.height/2));
- 
-	// and restore the co-ords to how they were when we began
 	ctx.restore(); 
 }
-
-
-
-
 var spawnCount = 0;
-
-// SPAWN BALLS
 var spawnDistance = 200 // Should be increased
 var ballArray = []
 var wasteArray = []
@@ -92,19 +73,12 @@ function doMouseDown(event)
 	}
 	else if (muted == false)
 	{
-		// REFUSE BUY
 		var refuseSound = new Audio("sound/Reject1.wav");
 		refuseSound.play()
 	}
 
-	// TESTING
-
 	var sx = circle.x
 	var sy = circle.y
-	console.log("Mouse Coordinates: ", mouseX, mouseY)
-	console.log("Pad Rotation: ", pad.testRotation)
-	console.log("Center relative coordinates", mouseX-sx, mouseY-sy)
-	
 }
 
 
@@ -136,10 +110,8 @@ var aoeArray = []
 var gameOver = false
 var survivedSeconds = 0
 var ballSpeed = 2
-
 var bar = new jetBar();
 
-// Update game objects
 var update = function (modifier) 
 {
 	if (Math.random() < spawnLimit && gameOver == false)
@@ -152,12 +124,8 @@ var update = function (modifier)
 	{
 		fighterBar += 0.01;
 	}
-	
-	//console.trace(fighterBar);
-
 };
 
-// Draw everything
 var render = function (deltaTime) 
 {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -169,7 +137,6 @@ var render = function (deltaTime)
 
 	aoeArray.forEach(function(blast)
 	{
-		//blast.update();
 		if(blast.radius < blast.maxBlastRadius)
 		{
 			blast.radius += blast.blastSpeed
@@ -180,7 +147,6 @@ var render = function (deltaTime)
 				var dx = ball5.x -circle.x
 				var dy = ball5.y - circle.y
 				var distance = Math.sqrt(dx * dx + dy * dy)
-				//console.trace(distance)
 				if (distance <= blast.radius)
 				{
 					ballArray.splice(b, 1)
@@ -250,10 +216,8 @@ var render = function (deltaTime)
 		ctx.font="20px Tekton Pro";
 		ctx.fillText("You survived "+survivedSeconds+" seconds of invading balls. ",canvas.width/2 - 150,canvas.height /2-25)
 		ctx.fillText("Press SPACE to try again.",canvas.width/2 - 100,canvas.height /2)
-		
 	}
     	
-     
     ballArray.forEach(function(ball)
     {
         ball.flightCounter += 1;
@@ -275,10 +239,8 @@ var render = function (deltaTime)
 				var now = survivedSeconds
 	        	if (Dangle < Math.PI/4)
 	        	{
-	        		//ball.giveDirection(ball.spawnX, ball.spawnY, false)
 	        		ball.turn()
 	        		
-	        		console.trace(now-ComboThen, now, ComboThen)
 					if (survivedSeconds-ComboThen <= 1)
 	        		{
 	        			comboThen = now
@@ -315,9 +277,6 @@ var render = function (deltaTime)
 			        				ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
 			        			}
 	        				}
-	        				
-
-	        				
 	        			}
 	        		}
 	        		else
@@ -334,7 +293,6 @@ var render = function (deltaTime)
 	        	}
         	}
         	
-        	
         	else
         	{
         		if (now-ComboThen <= 1)
@@ -344,9 +302,6 @@ var render = function (deltaTime)
 
         			if(comboStage == 4)
         			{
-        				// GET HELATH
-        				//combohits
-
         				if(circle.radius <= 200)
         				{
         					circle.radius += comboHits*5
@@ -373,7 +328,6 @@ var render = function (deltaTime)
         			comboStage = 0
         		}
 
-        		//console.trace("SLIPTHROUGH: ", ball.crashAngle, pad.rotation, Math.abs(ball.crashAngle-pad.rotation))
 	        	circle.radius -= 5
 	        	if (muted == false)
 	        	{
@@ -389,19 +343,15 @@ var render = function (deltaTime)
         		{
         			ballArray[bk].crashTime += 3
         		}
-	        	//console.trace("Edited circle posision: ", circle.radius, circle.x, circle.y)
-	        	//circle.x -= 5
-	        	//circle.y -= 5
 	        	ballArray.splice(ballArray.indexOf(ball),1)
 	        	pad.draw()
 
 	        	if (circle.radius <= 0)
 	        	{
+	        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
+					gameOverFunction(Math.floor((Date.now()-startTime)/1000));
 
-	        		gameOverFunction(Math.floor((Date.now()-startTime)/1000));
-
-
-	        		gameOver = true
+					gameOver = true
 	        		ballArray = []
 	        		aoeArray = []
 	        		turnedArray = []
@@ -414,11 +364,6 @@ var render = function (deltaTime)
 	        		circle.radius = 200
 	        		pad.x = 4000
 	        		pad.y = 4000
-	        		
-	        		
-	        		// Game over
-	        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
-	        		
 	        	}
         	}
         }
@@ -448,9 +393,7 @@ var render = function (deltaTime)
 
 	shotArray.forEach(function(shot)
 	{
-		//console.trace("Moving shot: ", shot.speed, shot.xDif, shot.Target)
-		
-		if (shot.Target != false)
+			if (shot.Target != false)
 		{
 
 			shot.x += shot.speed * shot.xDif;
@@ -471,8 +414,6 @@ var render = function (deltaTime)
 				if (shot.Target.destroyed == false)
 				{
 					shot.Target.destroyed = true
-					//console.trace(shot.Target.destroyed)
-					//console.trace(ballArray.indexOf(shot.Target));
 					if (ballArray.indexOf(shot.Target) != -1)
 					{
 						ballArray.splice(ballArray.indexOf(shot.Target), 1);
@@ -487,7 +428,6 @@ var render = function (deltaTime)
 
 	fighterArray.forEach(function(fighter)
 	{
-		//trace("Fighter: ", fighter.x, fighter.y);
 		if (fighter.leaving == false)
 		{
 			if (fighter.hunting == true && fighter.ready == true)
@@ -517,7 +457,6 @@ var render = function (deltaTime)
 		ctx.fillText(String(Math.floor((Now-startTime)/1000)),canvas.width/2-20,100)
 	}
 
-	
 	ctx.fillStyle = 'rgba('+String(a)+','+String(b)+','+String(c)+',0.4)';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -557,7 +496,6 @@ var a = 0
 var b = 255
 var c = 255
 
-// The main game loop
 var main = function () 
 {
 	var now = Date.now();
@@ -567,13 +505,9 @@ var main = function ()
 	render(delta / 1000);
 
 	then = now;
-
-	// Request to do this again ASAP
 	requestAnimationFrame(main);
 };
 
-
-//var ballColor = '#DB2EC7';
 var ballColor = '#CF0000';
 var centerColor = "rgb(82, 92 ,209)"; //(R,G,B)
 
@@ -601,12 +535,10 @@ function Pad()
       	ctx.arc(pad.x, pad.y, circle.radius+5, pad.visualRotation - Math.PI/4, pad.visualRotation + Math.PI/4, false);
       	ctx.lineWidth = 10
 
-      	// line color
-      	ctx.strokeStyle = 'green';
+      	ctx.strokeStyle = "#0000ff";
       	ctx.stroke();
 	}
 }
-
 
 function Center()
 {
@@ -614,18 +546,13 @@ function Center()
 	this.redCounter = 0
 	this.draw = function()
 	{
-
 		ctx.fillStyle = centerColor;
-         
         ctx.beginPath();
-
-        ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI*2, false);
+		ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI*2, false);
         ctx.fill();
-         
         ctx.closePath();
 	}
 }
-
 
 function Ball() 
 {
@@ -654,8 +581,7 @@ function Ball()
 	 	this.spawnY = this.y
 	 	this.speed = speed
 	    ballArray[ballArray.length] = this
-
-	    this.giveDirection((circle.x), (circle.y), true)
+		this.giveDirection((circle.x), (circle.y), true)
 	}
 
 	this.giveDirection = function(toX, toY, expectedToCrash)
@@ -665,8 +591,6 @@ function Ball()
 	 	this.startX = this.x
 	 	this.startY = this.y
 		   
-	  	//var dx = this.radius + this.x - (canvas.width * 0.5 + 50)
-	   	//var dy = canvas.height * 0.5 + 50  - this.y - this.radius
 	   	var dx = this.x - toX
 	   	var dy = toY  - this.y
 
@@ -687,18 +611,6 @@ function Ball()
 
 			this.crashAngle = -Math.atan2(dy, dx)
 			this.testCrashAngle = 180 + 180 * -this.crashAngle / Math.PI
-
-
-			/*var expectedX = this.x+this.vector[0]*this.crashTime
-			var expectedY = this.y-this.vector[1]*this.crashTime
-			var expectedXDistance = this.x+this.vector[0]*this.crashTime-circle.x
-			var expectedYDistance = this.y-this.vector[1]*this.crashTime-circle.y
-			if (Math.abs(Math.sqrt(expectedXDistance*expectedXDistance+expectedYDistance*expectedYDistance)- circleHit) > 10)
-			{
-				ballArray.splice(ballArray.indexOf(this))
-				this.destroyed == true
-			}*/
-			//console.trace(circleHit, Math.sqrt(expectedXDistance*expectedXDistance+expectedYDistance*expectedYDistance))
 		}
 	}
 
@@ -722,8 +634,6 @@ function Ball()
 		this.circleSpeed = 1 / (100)
 		this.orbitRadius = 1.5*circle.radius + 1.5*circle.radius*Math.random()
 
-		//this.x = (canvas.width * 0.5 + 50) + 100 * Math.cos((this.crashAngle));
-		//this.y = (canvas.height * 0.5 + 50) + 100 * Math.sin((this.crashAngle));
 		this.expectedToCrash = false
 		this.errorSpeedX = 0
 		this.errorSpeedY = 0
@@ -808,12 +718,9 @@ function Ball()
  	this.draw = function() 
  	{
         ctx.fillStyle = this.color;
-         
         ctx.beginPath();
-         
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
         ctx.fill();
-         
         ctx.closePath();
     };
 }
@@ -826,21 +733,15 @@ function Laser()
 {
 	this.spawn = function(angleError)
 	{
-		
-
 		center.reloading = true
 		center.redCounter = Math.min(center.redCounter + 40, 255)
-		
 		this.flightCounter = 0
-
 		this.speed = 15
 
 		this.color = laserColor
 		this.radius = 4
-
 		this.x = pad.x
 		this.y = pad.y
-
 		this.rotation = pad.rotation + angleError
 
 		laserArray[laserArray.length] = this
@@ -854,7 +755,6 @@ function Laser()
 	   	this.a = dy/dx
 	    this.b = this.y - this.a*this.x
 
-	    //this.absvector = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
 		this.vector = [this.speed * Math.cos(this.rotation),- this.speed * Math.sin(this.rotation)];
 	}
 
@@ -946,11 +846,6 @@ function keyboard(e)
 	}
 }
 
-//var blastColor = '#D424BF';
-//var blastColor = '#ff0000';
-
-
-
 function AoEBlast()
 {
 	this.spawn = function()
@@ -961,9 +856,7 @@ function AoEBlast()
 			blastSound.play()
 		}
 		
-		//var startBlastTime = Date.now();
 		this.maxBlastRadius = 200
-		//this.color = '#D424B';
 		this.color = "white"
 		this.radius = circle.radius;
 		this.x = circle.x;
@@ -976,22 +869,16 @@ function AoEBlast()
 		aoeArray[aoeArray.length] = this	
 	};	
 
-	//var timer = Date.now();
-
 	this.drawBlast = function()
 	{
-
 		ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-         
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
         ctx.fill();
-         
         ctx.closePath();
 	};
-	
-}
 
+}
 
 function Fighter()
 {
@@ -1033,15 +920,12 @@ function Fighter()
 		this.rotAks = 0.02;
 		this.degrees = 0;
 
-		//console.trace(this.rotation, this.x, this.y, this.vector[0])
-
 		fighterArray[fighterArray.length] = this
 
 	};	
 
 	this.calculateRoute = function(target)
 	{
-		//console.trace("calculating route")
 		this.Target = target
 
 		if (target.friendly == true || target.destroyed == true || target.expectedToCrash == false)
@@ -1074,10 +958,8 @@ function Fighter()
 		if (this.absvector < 300)
 		{
 			this.reload += 1;
-			//trace("Reloading: ", this.reload);
 			if (this.reload == this.reloadCounter)
 			{
-				//console.trace("FIRING");
 				if (muted == false)
 				{
 					var haakon2 = new Audio("sound/InterFace2.wav");
@@ -1134,7 +1016,6 @@ function Fighter()
 		{
 			this.hunting = true;
 		}
-		//console.trace(Math.floor((Date.now()-this.then)/1000), this.lasts)
 
 		if (Math.floor((Date.now()-this.then)/1000) == this.lasts)
 		{
@@ -1152,7 +1033,6 @@ function Fighter()
 	this.disAppear = function()
 	{	
 		this.flightCounter+= 1
-		//console.trace("Disappearing")
 		var er = this.degrees-this.rotation
 
 		this.rotation -= er*this.rotAks
@@ -1172,7 +1052,6 @@ function Fighter()
 	this.drawFighter = function()
 	{	
 		var v = [[0,-this.sideLength],[-this.sideLength,0],[this.sideLength,0]]
-		//console.trace("Tracing fighter", this.x, this.y, this.rotation, this.sideLength)
 		ctx.save(); 
 		ctx.fillStyle = "green"
 
@@ -1195,7 +1074,6 @@ function Shot()
 {
 	this.spawn = function(xStart, yStart, xDif, yDif, rot, Target, pPlane)
 	{
-		//console.trace("Spawned shot")
 		this.Error = 0.2
 		this.speed = 15
 		this.x = xStart
@@ -1211,15 +1089,12 @@ function Shot()
 		shotArray[shotArray.length] = this
 	};	
 
-	//var timer = Date.now();
-
 	this.drawShot = function()
 	{
 
 		ctx.fillStyle = "blue"
          
         ctx.beginPath();
-       // console.trace(1111);
         ctx.arc(this.x, this.y, 4, 0, Math.PI*2, false);
         ctx.fill();
          
@@ -1247,8 +1122,8 @@ function jetBar(){
 	}
 }
 
-
-//gameOver
-function gameOverFunction(sec){
-
+function susbmitsceore(name, score){
+	xmlhttp.open("POST","waveos.pf-control.de/scores/submitscore.php",true);
+	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xmlhttp.send("username=" + name + "&score=" + score);
 }
