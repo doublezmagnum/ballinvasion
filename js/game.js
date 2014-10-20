@@ -1,9 +1,16 @@
 // Create the canvas
 var canvas = document.createElement("canvas");
 var ctx = canvas.getContext("2d");
-canvas.width = 1280;
-canvas.height = 600;
+
+// Cross-browser support for requestAnimationFrame
+var w = window;
+requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
+
+canvas.width = w.innerWidth;
+canvas.height = w.innerHeight;
 document.body.appendChild(canvas);
+
+
 
 
 // Game objects
@@ -70,6 +77,12 @@ function doMouseDown(event)
 	{
 		var numLasers = 5
 		var angleError = -0.1
+		if (muted == false)
+		{
+			var snd = new Audio("sound/Menu1.wav");
+			snd.play()
+		}
+		
 		for (l = 0; l < numLasers; l++)
 		{
 			var laser = new Laser();
@@ -77,7 +90,7 @@ function doMouseDown(event)
 			angleError += 0.05
 		}	
 	}
-	else
+	else if (muted == false)
 	{
 		// REFUSE BUY
 		var refuseSound = new Audio("sound/Reject1.wav");
@@ -167,7 +180,7 @@ var render = function (deltaTime)
 				var dx = ball5.x -circle.x
 				var dy = ball5.y - circle.y
 				var distance = Math.sqrt(dx * dx + dy * dy)
-				console.trace(distance)
+				//console.trace(distance)
 				if (distance <= blast.radius)
 				{
 					ballArray.splice(b, 1)
@@ -235,7 +248,9 @@ var render = function (deltaTime)
 	{
 		ctx.fillStyle = "black"
 		ctx.font="20px Tekton Pro";
-		ctx.fillText("You survived "+survivedSeconds+" seconds of invading balls. Press SPACE to try again.",200,canvas.height /2)
+		ctx.fillText("You survived "+survivedSeconds+" seconds of invading balls. ",canvas.width/2 - 150,canvas.height /2-25)
+		ctx.fillText("Press SPACE to try again.",canvas.width/2 - 100,canvas.height /2)
+		
 	}
     	
      
@@ -272,7 +287,11 @@ var render = function (deltaTime)
 	        			{
 	        				try
 	        				{
-	        					comboSounds[comboStage-1].play()
+	        					if (muted == false)
+	        					{
+	        						comboSounds[comboStage-1].play()
+	        					}
+	        					
 	        				}
 	        				catch (e)
 	        				{
@@ -356,6 +375,12 @@ var render = function (deltaTime)
 
         		//console.trace("SLIPTHROUGH: ", ball.crashAngle, pad.rotation, Math.abs(ball.crashAngle-pad.rotation))
 	        	circle.radius -= 5
+	        	if (muted == false)
+	        	{
+	        		var haakon = new Audio("sound/LoseHealth.wav");
+					haakon.play()
+	        	}
+	        	
 	        	for (var wk = 0; wk < turnedArray.length; wk++)
         		{
         			turnedArray[wk].orbitRadius -= 5
@@ -547,10 +572,6 @@ var main = function ()
 	requestAnimationFrame(main);
 };
 
-// Cross-browser support for requestAnimationFrame
-var w = window;
-requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
-
 
 //var ballColor = '#DB2EC7';
 var ballColor = '#CF0000';
@@ -563,6 +584,8 @@ var music = new Audio("music/Mix3.mp3");
 music.play()
 var then = Date.now();
 main();
+
+
 var comboSounds = [new Audio("sound/Combo/2/1.wav"), new Audio("sound/Combo/2/2.wav"), new Audio("sound/Combo/2/3.wav")]
 var comboThen = 0
 var comboStage = 0
@@ -682,8 +705,12 @@ function Ball()
 	this.turn = function()
 	{
 		this.destroyed = true;
-		var snd = new Audio("sound/Interface1.wav");
-		snd.play()
+		if (muted == false)
+		{
+			var snd = new Audio("sound/Interface1.wav");
+			snd.play()
+		}
+		
 		ballArray.splice(ballArray.indexOf(this), 1)
 		turnedArray[turnedArray.length] = this
 		this.friendly = true
@@ -799,8 +826,7 @@ function Laser()
 {
 	this.spawn = function(angleError)
 	{
-		var snd = new Audio("sound/Menu1.wav");
-		snd.play()
+		
 
 		center.reloading = true
 		center.redCounter = Math.min(center.redCounter + 40, 255)
@@ -865,6 +891,7 @@ function Laser()
 
 addEventListener("keydown", keyboard, true);
 
+var muted = false
 var fighterBar = 0;
 var fighterBarMax = 40;
 
@@ -878,7 +905,7 @@ function keyboard(e)
 			var blast = new AoEBlast();
 			blast.spawn();
 		}
-		else
+		else if (muted == false)
 		{
 			// REFUSE BUY
 			var refuseSound = new Audio("sound/Reject1.wav");
@@ -896,13 +923,18 @@ function keyboard(e)
 			fighterBar = 0;
 		}
 
-		else
+		else if (muted == false)
 		{
 			// REFUSE BUY
 			var refuseSound = new Audio("sound/Reject1.wav");
 			refuseSound.play()
 		}
 		
+	}
+	else if (e.keyCode == 77)
+	{
+		// E
+		muted = !muted
 	}
 	else if (e.keyCode == 32)
 	{
@@ -923,8 +955,12 @@ function AoEBlast()
 {
 	this.spawn = function()
 	{
-		var blastSound = new Audio('sound/Mail1.wav')
-		blastSound.play()
+		if (muted == false)
+		{
+			var blastSound = new Audio('sound/Mail1.wav')
+			blastSound.play()
+		}
+		
 		//var startBlastTime = Date.now();
 		this.maxBlastRadius = 200
 		//this.color = '#D424B';
@@ -962,7 +998,7 @@ function Fighter()
 	this.spawn = function()
 	{
 		this.color = "red"
-		this.sideLength = 15
+		this.sideLength = 20
 
 		this.hunting = false;
 		this.lasts = 30 //seconds
@@ -1042,6 +1078,12 @@ function Fighter()
 			if (this.reload == this.reloadCounter)
 			{
 				//console.trace("FIRING");
+				if (muted == false)
+				{
+					var haakon2 = new Audio("sound/InterFace2.wav");
+					haakon2.play()
+				}
+				
 				var shot = new Shot();
 				shot.spawn(this.x, this.y, this.vector[0], this.vector[1], this.rotation, this.Target, this)
 				this.shotsFired = true; 	
@@ -1129,7 +1171,7 @@ function Fighter()
 
 	this.drawFighter = function()
 	{	
-		var v = [[0,-10],[-10,0],[10,0]]
+		var v = [[0,-this.sideLength],[-this.sideLength,0],[this.sideLength,0]]
 		//console.trace("Tracing fighter", this.x, this.y, this.rotation, this.sideLength)
 		ctx.save(); 
 		ctx.fillStyle = "green"
