@@ -1,0 +1,4 @@
+Jagerfly kjører vekk, hektet på feil target
+Baller kolliderer feil etter radiusendring.
+Laserlyd oppå hverandre
+baller går forbi når liten center
