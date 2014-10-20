@@ -247,55 +247,73 @@ var render = function (deltaTime)
          
         if (ball.flightCounter == Math.round(ball.crashTime) && ball.expectedToCrash == true)
         {
-        	var Dangle = Math.abs(ball.crashAngle-pad.rotation)
-			
-			if(Dangle > Math.PI) 
-			{
-				Dangle = 2*Math.PI - Dangle
-			}
-			var ComboThen = comboThen
-			var now = survivedSeconds
-        	if (Dangle < Math.PI/4)
+        	if(ball.crashing == false)
         	{
-        		//ball.giveDirection(ball.spawnX, ball.spawnY, false)
-        		ball.turn()
-        		
-        		console.trace(now-ComboThen, now, ComboThen)
-				if (survivedSeconds-ComboThen <= 1)
-        		{
-        			comboThen = now
-        			
-        			if (comboStage >= 1)
-        			{
-        				try
-        				{
-        					comboSounds[comboStage-1].play()
-        				}
-        				catch (e)
-        				{
-        					console.trace(comboStage)
-        				}
-        			}
-        			comboStage += 1
-        			comboHits += 1
-        			
-					if(comboStage == 4)
-        			{
-        				circle.radius += comboHits*5
+        		var Dangle = Math.abs(ball.crashAngle-pad.rotation)
+			
+				if(Dangle > Math.PI) 
+				{
+					Dangle = 2*Math.PI - Dangle
+				}
+				var ComboThen = comboThen
+				var now = survivedSeconds
+	        	if (Dangle < Math.PI/4)
+	        	{
+	        		//ball.giveDirection(ball.spawnX, ball.spawnY, false)
+	        		ball.turn()
+	        		
+	        		console.trace(now-ComboThen, now, ComboThen)
+					if (survivedSeconds-ComboThen <= 1)
+	        		{
+	        			comboThen = now
+	        			
+	        			if (comboStage >= 1)
+	        			{
+	        				try
+	        				{
+	        					comboSounds[comboStage-1].play()
+	        				}
+	        				catch (e)
+	        				{
+	        					console.trace(comboStage)
+	        				}
+	        			}
+	        			comboStage += 1
+	        			comboHits += 1
+	        			
+						if(comboStage == 4)
+	        			{
+	        				if(circle.radius <= 200)
+	        				{
+	        					circle.radius += comboHits*5
+	        					for (var yk = 0; yk < turnedArray.length; yk++)
+	        					{
+	        						turnedArray[yk].orbitRadius += comboHits*5
+	        					}
+	        					for (var bk = 0; bk < ballArray.length; bk++)
+			        			{
+			        				ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
+			        			}
+	        				}
+	        				
 
-        				for (var yk = 0; yk < turnedArray.length; yk++)
-        				{
-        					turnedArray[yk].orbitRadius += comboHits*5
-        				}
-        			}
-        		}
-        		else
-        		{
-        			comboThen = now
-        			comboHits = 1
-        			comboStage = 1
-        		}
+	        				
+	        			}
+	        		}
+	        		else
+	        		{
+	        			comboThen = now
+	        			comboHits = 1
+	        			comboStage = 1
+	        		}
+	        	}
+	        	else
+	        	{
+	        		ball.crashing = true
+	        		ball.crashTime += 5
+	        	}
         	}
+        	
         	
         	else
         	{
@@ -308,11 +326,16 @@ var render = function (deltaTime)
         			{
         				// GET HELATH
         				//combohits
+
         				circle.radius += comboHits*5
         				for (var uk = 0; uk < turnedArray.length; uk++)
         				{
         					turnedArray[uk].orbitRadius += comboHits*5
         				}
+        				for (var bk = 0; bk < ballArray.length; bk++)
+		        		{
+		        			ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
+		        		}
         			}
 
         			if (comboStage-comboHits == 2)
@@ -332,6 +355,10 @@ var render = function (deltaTime)
 	        	for (var wk = 0; wk < turnedArray.length; wk++)
         		{
         			turnedArray[wk].orbitRadius -= 5
+        		}
+        		for (var bk = 0; bk < ballArray.length; bk++)
+        		{
+        			ballArray[bk].crashTime += 5
         		}
 	        	//console.trace("Edited circle posision: ", circle.radius, circle.x, circle.y)
 	        	//circle.x -= 5
@@ -576,6 +603,7 @@ function Ball()
 {
 	this.spawn = function(speed)
 	{
+		this.crashing = false
 		this.destroyed = false;
 		this.expectedToCrash = true
 		this.beingTargeted = false
@@ -929,7 +957,7 @@ function Fighter()
 	this.spawn = function()
 	{
 		this.color = "red"
-		this.sideLength = 10
+		this.sideLength = 15
 
 		this.hunting = false;
 		this.lasts = 30 //seconds
@@ -975,7 +1003,7 @@ function Fighter()
 		//console.trace("calculating route")
 		this.Target = target
 
-		if (target.friendly == true)
+		if (target.friendly == true || target.destroyed == true || target.expectedToCrash == false)
 		{
 			this.Target = false
 			this.hunting = false
