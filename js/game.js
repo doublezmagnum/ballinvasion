@@ -160,23 +160,24 @@ var render = function (deltaTime)
 		if(blast.radius < blast.maxBlastRadius)
 		{
 			blast.radius += blast.blastSpeed
-		}
-		else
-		{
-			aoeArray.splice(aoeArray.indexOf(blast), 1)
 
 			for (var b = 0; b < ballArray.length; b++)
 			{
 				var ball5 = ballArray[b]
-				var dx = ball5.x -circle.y
-				var dy = circle.y  - ball5.y
+				var dx = ball5.x -circle.x
+				var dy = ball5.y - circle.y
 				var distance = Math.sqrt(dx * dx + dy * dy)
-				
-				if (distance < blast.maxBlastRadius)
+				console.trace(distance)
+				if (distance <= blast.radius)
 				{
 					ballArray.splice(b, 1)
 				}
 			}
+		}
+		else
+		{
+			
+			aoeArray.splice(aoeArray.indexOf(blast), 1)
 		}
 		blast.drawBlast()
 	});
@@ -279,11 +280,11 @@ var render = function (deltaTime)
 	        				}
 	        			}
 	        			comboStage += 1
-	        			comboHits += 1
+	        			comboHits += 1  
 	        			
 						if(comboStage == 4)
 	        			{
-	        				if(circle.radius <= 200)
+	        				if(circle.radius <= 50)
 	        				{
 	        					circle.radius += comboHits*5
 	        					for (var yk = 0; yk < turnedArray.length; yk++)
@@ -327,15 +328,18 @@ var render = function (deltaTime)
         				// GET HELATH
         				//combohits
 
-        				circle.radius += comboHits*5
-        				for (var uk = 0; uk < turnedArray.length; uk++)
+        				if(circle.radius <= 200)
         				{
-        					turnedArray[uk].orbitRadius += comboHits*5
+        					circle.radius += comboHits*5
+        					for (var uk = 0; uk < turnedArray.length; uk++)
+        					{
+        						turnedArray[uk].orbitRadius += comboHits*5
+        					}
+        					for (var bk = 0; bk < ballArray.length; bk++)
+		        			{
+		        				ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
+		        			}
         				}
-        				for (var bk = 0; bk < ballArray.length; bk++)
-		        		{
-		        			ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
-		        		}
         			}
 
         			if (comboStage-comboHits == 2)
@@ -358,7 +362,7 @@ var render = function (deltaTime)
         		}
         		for (var bk = 0; bk < ballArray.length; bk++)
         		{
-        			ballArray[bk].crashTime += 5
+        			ballArray[bk].crashTime += 3
         		}
 	        	//console.trace("Edited circle posision: ", circle.radius, circle.x, circle.y)
 	        	//circle.x -= 5
@@ -587,6 +591,7 @@ function Center()
 	this.redCounter = 0
 	this.draw = function()
 	{
+
 		ctx.fillStyle = centerColor;
          
         ctx.beginPath();
