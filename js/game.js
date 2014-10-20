@@ -349,7 +349,7 @@ var render = function (deltaTime)
 	        	if (circle.radius <= 0)
 	        	{
 	        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
-					gameOverFunction(Math.floor((Date.now()-startTime)/1000));
+					//meOverFunction(Math.floor((Date.now()-startTime)/1000));
 
 					gameOver = true
 	        		ballArray = []
