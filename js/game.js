@@ -110,7 +110,7 @@ var update = function (modifier)
 	}
 	if(fighterBar <= fighterBarMax)
 	{
-		fighterBar += 0.04;
+		fighterBar += 0.015;
 	}
 
 	updateBlast()
