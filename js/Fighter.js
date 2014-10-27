@@ -42,6 +42,25 @@ function Fighter()
 
 	};	
 
+	this.updateFighter = function(fighter)
+	{
+		if (fighter.leaving == false)
+		{
+			if (fighter.hunting == true && fighter.ready == true)
+			{
+				fighter.calculateRoute(fighter.Target);
+			}
+			else 
+			{
+				fighter.searchForTarget();
+			}
+		}
+		else
+		{
+			fighter.disAppear()
+		}	
+	}
+
 	this.calculateRoute = function(target)
 	{
 		this.Target = target

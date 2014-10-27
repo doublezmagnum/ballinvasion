@@ -17,6 +17,39 @@ function Shot()
 		shotArray[shotArray.length] = this
 	};	
 
+	this.updateShot = function(shot)
+	{
+		if (shot.Target != false)
+		{
+			shot.x += shot.speed * shot.xDif;
+			shot.y += shot.speed * shot.yDif;
+
+			if (Math.sqrt((shot.Target.x-shot.x)*(shot.Target.x-shot.x)+(shot.y-shot.Target.y)*(shot.y-shot.Target.y)) < shot.parentPlane.sideLength + shot.Target.radius)
+			{
+				try
+				{
+					shot.parentPlane.hunting = false;
+					shot.parentPlane.speed = shot.parentPlane.slowspeed;
+				}
+				catch (e)
+				{
+					trace("nf error");
+				}
+				
+				if (shot.Target.destroyed == false)
+				{
+					shot.Target.destroyed = true
+					if (ballArray.indexOf(shot.Target) != -1)
+					{
+						ballArray.splice(ballArray.indexOf(shot.Target), 1);
+					}
+					shotArray.splice(shotArray.indexOf(shot), 1)
+					shot.parentPlane = false;
+				}
+			}			
+		}
+	}
+
 	this.drawShot = function()
 	{
 

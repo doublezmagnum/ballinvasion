@@ -157,7 +157,156 @@ function Ball()
 		
 	}
 
-	
+	this.updateBall = function(ball)
+	{
+		ball.flightCounter += 1;
+								
+		ball.x = ball.startX + ball.vector[0] * ball.flightCounter;
+		ball.y = ball.startY - ball.vector[1] * ball.flightCounter;
+         
+        if (ball.flightCounter == Math.round(ball.crashTime) && ball.expectedToCrash == true)
+        {
+        	if(ball.crashing == false)
+        	{
+        		var Dangle = Math.abs(ball.crashAngle-pad.rotation)
+			
+				if(Dangle > Math.PI) 
+				{
+					Dangle = 2*Math.PI - Dangle
+				}
+				var ComboThen = comboThen
+				var now = survivedSeconds
+	        	if (Dangle < Math.PI/4)
+	        	{
+	        		ball.turn()
+	        		
+					if (survivedSeconds-ComboThen <= 1)
+	        		{
+	        			comboThen = now
+	        			
+	        			if (comboStage >= 1)
+	        			{
+	        				try
+	        				{
+	        					if (muted == false)
+	        					{
+	        						comboSounds[comboStage-1].play()
+	        					}
+	        					
+	        				}
+	        				catch (e)
+	        				{
+	        					console.trace(comboStage)
+	        				}
+	        			}
+	        			comboStage += 1
+	        			comboHits += 1  
+	        			
+						if(comboStage == 4)
+	        			{
+	        				if(circle.radius <= 50)
+	        				{
+	        					circle.radius += comboHits*5
+	        					for (var yk = 0; yk < turnedArray.length; yk++)
+	        					{
+	        						turnedArray[yk].orbitRadius += comboHits*5
+	        					}
+	        					for (var bk = 0; bk < ballArray.length; bk++)
+			        			{
+			        				ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
+			        			}
+	        				}
+	        			}
+	        		}
+	        		else
+	        		{
+	        			comboThen = now
+	        			comboHits = 1
+	        			comboStage = 1
+	        		}
+	        	}
+	        	else
+	        	{
+	        		ball.crashing = true
+	        		ball.crashTime += 5
+	        	}
+        	}
+        	
+        	else
+        	{
+        		if (now-ComboThen <= 1)
+        		{
+        			
+        			comboStage += 1
+
+        			if(comboStage == 4)
+        			{
+        				if(circle.radius <= 200)
+        				{
+        					circle.radius += comboHits*5
+        					for (var uk = 0; uk < turnedArray.length; uk++)
+        					{
+        						turnedArray[uk].orbitRadius += comboHits*5
+        					}
+        					for (var bk = 0; bk < ballArray.length; bk++)
+		        			{
+		        				ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
+		        			}
+        				}
+        			}
+
+        			if (comboStage-comboHits == 2)
+	        		{
+	        			comboStage = 0
+	        			comboHits = 0
+	        		}
+        		}
+        		else
+        		{
+        			comboHits = 0
+        			comboStage = 0
+        		}
+
+	        	circle.radius -= 5
+	        	if (muted == false)
+	        	{
+	        		var haakon = new Audio("sound/LoseHealth.wav");
+					haakon.play()
+	        	}
+	        	
+	        	for (var wk = 0; wk < turnedArray.length; wk++)
+        		{
+        			turnedArray[wk].orbitRadius -= 5
+        		}
+        		for (var bk = 0; bk < ballArray.length; bk++)
+        		{
+        			ballArray[bk].crashTime += 3
+        		}
+	        	ballArray.splice(ballArray.indexOf(ball),1)
+	        	pad.draw()
+
+	        	if (circle.radius <= 0)
+	        	{
+	        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
+					//meOverFunction(Math.floor((Date.now()-startTime)/1000));
+
+					gameOver = true
+	        		ballArray = []
+	        		aoeArray = []
+	        		turnedArray = []
+	        		shotArray = []
+	        		fighterArray = []
+	        		center.x = 4000
+	        		center.y = 4000
+	        		circle.x = 4000
+	        		circle.y = 4000
+	        		circle.radius = 200
+	        		pad.x = 4000
+	        		pad.y = 4000
+	        	}
+        	}
+        }
+	}
 
  	this.draw = function() 
  	{

@@ -110,8 +110,18 @@ var update = function (modifier)
 	}
 	if(fighterBar <= fighterBarMax)
 	{
-		fighterBar += 0.01;
+		fighterBar += 0.04;
 	}
+
+	updateBlast()
+
+	updateBall();
+
+	updateLasers();
+
+	updateShots();
+
+	updateFighters();
 };
 
 var render = function (deltaTime) 
@@ -123,7 +133,7 @@ var render = function (deltaTime)
 
 	bar.drawLine(fighterBar);
 
-	drawAndBlastBalls();
+	drawBlast();
 
 	centerColor = "rgb(" +String(center.redCounter)+", 0, 0)";
 	center.redCounter = Math.max(center.redCounter-1, 0)
@@ -265,34 +275,7 @@ function susbmitsceore(name, score){
 	xmlhttp.send("username=" + name + "&score=" + score);
 }
 
-function drawAndBlastBalls()
-{
-	aoeArray.forEach(function(blast)
-	{
-		if(blast.radius < blast.maxBlastRadius)
-		{
-			blast.radius += blast.blastSpeed
 
-			for (var b = 0; b < ballArray.length; b++)
-			{
-				var ball5 = ballArray[b]
-				var dx = ball5.x -circle.x
-				var dy = ball5.y - circle.y
-				var distance = Math.sqrt(dx * dx + dy * dy)
-				if (distance <= blast.radius)
-				{
-					ballArray.splice(b, 1)
-				}
-			}
-		}
-		else
-		{
-			
-			aoeArray.splice(aoeArray.indexOf(blast), 1)
-		}
-		blast.drawBlast()
-	});
-}
 
 function drawTurned()
 {
@@ -340,182 +323,59 @@ function drawTurned()
 	});
 }
 
+function updateBlast()
+{
+	aoeArray.forEach(function(blast)
+	{
+		blast.updateBlast(blast);
+	});
+}
+
+function drawBlast()
+{
+	aoeArray.forEach(function(blast)
+	{
+		blast.drawBlast();
+	});
+}
+
+function updateBall()
+{
+	ballArray.forEach(function(ball)
+    {  
+        ball.updateBall(ball);
+	});
+}
+
 function drawBall()
 {
 	ballArray.forEach(function(ball)
-    {
-        ball.flightCounter += 1;
-								
-		ball.x = ball.startX + ball.vector[0] * ball.flightCounter;
-		ball.y = ball.startY - ball.vector[1] * ball.flightCounter;
-         
-        if (ball.flightCounter == Math.round(ball.crashTime) && ball.expectedToCrash == true)
-        {
-        	if(ball.crashing == false)
-        	{
-        		var Dangle = Math.abs(ball.crashAngle-pad.rotation)
-			
-				if(Dangle > Math.PI) 
-				{
-					Dangle = 2*Math.PI - Dangle
-				}
-				var ComboThen = comboThen
-				var now = survivedSeconds
-	        	if (Dangle < Math.PI/4)
-	        	{
-	        		ball.turn()
-	        		
-					if (survivedSeconds-ComboThen <= 1)
-	        		{
-	        			comboThen = now
-	        			
-	        			if (comboStage >= 1)
-	        			{
-	        				try
-	        				{
-	        					if (muted == false)
-	        					{
-	        						comboSounds[comboStage-1].play()
-	        					}
-	        					
-	        				}
-	        				catch (e)
-	        				{
-	        					console.trace(comboStage)
-	        				}
-	        			}
-	        			comboStage += 1
-	        			comboHits += 1  
-	        			
-						if(comboStage == 4)
-	        			{
-	        				if(circle.radius <= 50)
-	        				{
-	        					circle.radius += comboHits*5
-	        					for (var yk = 0; yk < turnedArray.length; yk++)
-	        					{
-	        						turnedArray[yk].orbitRadius += comboHits*5
-	        					}
-	        					for (var bk = 0; bk < ballArray.length; bk++)
-			        			{
-			        				ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
-			        			}
-	        				}
-	        			}
-	        		}
-	        		else
-	        		{
-	        			comboThen = now
-	        			comboHits = 1
-	        			comboStage = 1
-	        		}
-	        	}
-	        	else
-	        	{
-	        		ball.crashing = true
-	        		ball.crashTime += 5
-	        	}
-        	}
-        	
-        	else
-        	{
-        		if (now-ComboThen <= 1)
-        		{
-        			
-        			comboStage += 1
-
-        			if(comboStage == 4)
-        			{
-        				if(circle.radius <= 200)
-        				{
-        					circle.radius += comboHits*5
-        					for (var uk = 0; uk < turnedArray.length; uk++)
-        					{
-        						turnedArray[uk].orbitRadius += comboHits*5
-        					}
-        					for (var bk = 0; bk < ballArray.length; bk++)
-		        			{
-		        				ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
-		        			}
-        				}
-        			}
-
-        			if (comboStage-comboHits == 2)
-	        		{
-	        			comboStage = 0
-	        			comboHits = 0
-	        		}
-        		}
-        		else
-        		{
-        			comboHits = 0
-        			comboStage = 0
-        		}
-
-	        	circle.radius -= 5
-	        	if (muted == false)
-	        	{
-	        		var haakon = new Audio("sound/LoseHealth.wav");
-					haakon.play()
-	        	}
-	        	
-	        	for (var wk = 0; wk < turnedArray.length; wk++)
-        		{
-        			turnedArray[wk].orbitRadius -= 5
-        		}
-        		for (var bk = 0; bk < ballArray.length; bk++)
-        		{
-        			ballArray[bk].crashTime += 3
-        		}
-	        	ballArray.splice(ballArray.indexOf(ball),1)
-	        	pad.draw()
-
-	        	if (circle.radius <= 0)
-	        	{
-	        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
-					//meOverFunction(Math.floor((Date.now()-startTime)/1000));
-
-					gameOver = true
-	        		ballArray = []
-	        		aoeArray = []
-	        		turnedArray = []
-	        		shotArray = []
-	        		fighterArray = []
-	        		center.x = 4000
-	        		center.y = 4000
-	        		circle.x = 4000
-	        		circle.y = 4000
-	        		circle.radius = 200
-	        		pad.x = 4000
-	        		pad.y = 4000
-	        	}
-        	}
-        }
-       
+    {  
         ball.draw();
+	});
+}
+
+function updateLasers()
+{
+	laserArray.forEach(function(laser)
+	{	
+		laser.updateLaser(laser);
 	});
 }
 
 function drawLasers()
 {
 	laserArray.forEach(function(laser)
+	{	
+		laser.drawLaser();
+	});
+}
+
+function updateShots()
+{
+	shotArray.forEach(function(shot)
 	{
-		laser.flightCounter += 1;
-						
-		laser.x = laser.startX + laser.vector[0] * laser.flightCounter;
-		laser.y = laser.startY - laser.vector[1] * laser.flightCounter;
-
-		for (var y = 0; y < ballArray.length; y++)
-		{
-			var ball3 = ballArray[y]
-			if (laser.testCollision(ball3))
-			{
-				ballArray.splice(y, 1)
-			}
-		}
-		
-
-		laser.drawLaser()
+		shot.updateShot(shot);
 	});
 }
 
@@ -523,62 +383,23 @@ function drawShots()
 {
 	shotArray.forEach(function(shot)
 	{
-			if (shot.Target != false)
-		{
+		shot.drawShot();
+	});
+}
 
-			shot.x += shot.speed * shot.xDif;
-			shot.y += shot.speed * shot.yDif;
-
-			if (Math.sqrt((shot.Target.x-shot.x)*(shot.Target.x-shot.x)+(shot.y-shot.Target.y)*(shot.y-shot.Target.y)) < shot.parentPlane.sideLength + shot.Target.radius)
-			{
-				try
-				{
-					shot.parentPlane.hunting = false;
-					shot.parentPlane.speed = shot.parentPlane.slowspeed;
-				}
-				catch (e)
-				{
-					trace("nf error");
-				}
-				
-				if (shot.Target.destroyed == false)
-				{
-					shot.Target.destroyed = true
-					if (ballArray.indexOf(shot.Target) != -1)
-					{
-						ballArray.splice(ballArray.indexOf(shot.Target), 1);
-					}
-					shotArray.splice(shotArray.indexOf(shot), 1)
-					shot.parentPlane = false;
-				}
-			}
-			shot.drawShot()
-		}
+function updateFighters()
+{
+	fighterArray.forEach(function(fighter)
+	{
+		fighter.updateFighter(fighter);
 	});
 }
 
 function drawFighters()
 {
 	fighterArray.forEach(function(fighter)
-	{
-		if (fighter.leaving == false)
-		{
-			if (fighter.hunting == true && fighter.ready == true)
-			{
-				fighter.calculateRoute(fighter.Target);
-			}
-			else 
-			{
-				fighter.searchForTarget();
-			}
-		}
-
-		else
-		{
-			fighter.disAppear()
-		}
+	{	
 		fighter.drawFighter()
-		
 	});
 }
 
