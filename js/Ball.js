@@ -1,0 +1,170 @@
+function Ball() 
+{
+	this.spawn = function(speed)
+	{
+		this.crashing = false
+		this.destroyed = false;
+		this.expectedToCrash = true
+		this.beingTargeted = false
+		this.friendly = false
+		this.radius = 7
+		this.color = ballColor
+		var rNumber = Math.random()
+		if (test == true)
+		{
+			this.x = 0
+			this.y = 0
+		}
+		else
+		{
+			this.x = circle.x + 700*Math.cos(rNumber* 2 * Math.PI)
+	 		this.y = circle.y + 700*Math.sin(rNumber * 2 * Math.PI)
+		}
+		
+	 	this.spawnX = this.x
+	 	this.spawnY = this.y
+	 	this.speed = speed
+	    ballArray[ballArray.length] = this
+		this.giveDirection((circle.x), (circle.y), true)
+	}
+
+	this.giveDirection = function(toX, toY, expectedToCrash)
+	{
+		this.flightCounter = 0;
+		this.expectedToCrash = expectedToCrash
+	 	this.startX = this.x
+	 	this.startY = this.y
+		   
+	   	var dx = this.x - toX
+	   	var dy = toY  - this.y
+
+	   	this.a = dy/dx
+	    this.b = this.y - this.a*this.x
+
+	    this.absvector = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+		this.vector = [-this.speed * dx / this.absvector,-this.speed * dy / this.absvector];
+
+		if (expectedToCrash == true)
+		{
+			var circleHit = circle.radius + 10
+			var sx = this.x - circle.x
+		   	var sy = circle.y  - this.y
+		   	
+			this.crashTime = -(Math.sqrt(-4*(this.vector[0]*this.vector[0]+this.vector[1]*this.vector[1])*(-(this.radius + circleHit)*(this.radius + circleHit)+sx*sx+sy*sy) + (2*sx*this.vector[0]+2*sy*this.vector[1])*(2*sx*this.vector[0]+2*sy*this.vector[1]))+2*sx*this.vector[0]+2*sy*this.vector[1])/(2*this.vector[0]*this.vector[0]+2*this.vector[1]*this.vector[1])
+			var distance = Math.sqrt(dx * dx + dy * dy)
+
+			this.crashAngle = -Math.atan2(dy, dx)
+			this.testCrashAngle = 180 + 180 * -this.crashAngle / Math.PI
+		}
+	}
+
+	this.turn = function()
+	{
+		this.destroyed = true;
+		if (muted == false)
+		{
+			var snd = new Audio("sound/Interface1.wav");
+			snd.play()
+		}
+		
+		ballArray.splice(ballArray.indexOf(this), 1)
+		turnedArray[turnedArray.length] = this
+		this.friendly = true
+		this.color = "#0000ff"
+
+		this.crashAngle -= Math.PI / 2
+
+		this.circleCounter = 0
+		this.circleSpeed = 1 / (100)
+		this.orbitRadius = 1.5*circle.radius + 1.5*circle.radius*Math.random()
+
+		this.expectedToCrash = false
+		this.errorSpeedX = 0
+		this.errorSpeedY = 0
+	}
+
+	this.moveIntoOrbit = function()
+	{
+		var refX = circle.x + this.orbitRadius*Math.cos(this.circleCounter + this.crashAngle)
+		var refY = circle.y + this.orbitRadius*Math.sin(this.circleCounter + this.crashAngle)
+
+		this.errorSpeedX = refX-this.x
+		this.errorSpeedY = refY-this.y
+	}
+
+	this.testCollision = function(ball1)
+	{
+		var dx = ball1.x - this.x
+		var dy = ball1.y - this.y
+
+		var distance = Math.sqrt(dx*dx+dy*dy)
+
+		if (distance < ball1.radius + this.radius)
+		{
+			return true
+		}
+		else
+		{
+			return false
+		}
+	}
+
+	this.handleCollision = function(ball2, statusChange)
+	{
+		var dx = ball2.x-this.x
+		var dy = this.x-ball2.y
+		var distance = this.radius + ball2.radius
+
+		var XaxisAngle = Math.atan2(dy, dx)
+		var YaxisAngle = Math.atan2(dy, dx) - Math.PI/2
+
+		var vx = ball2.vector[0]
+		var vy = ball2.vector[1]
+
+		var vBallAngle = Math.atan2(vy, vx)
+
+		var vThisAngle = Math.atan2(this.vector[0], this.vector[1])
+
+		var ballResult = YaxisAngle + vThisAngle
+		var thisResult = YaxisAngle + vBallAngle
+
+		if (statusChange == true)
+		{
+			if (turnedArray.indexOf(this) > -1)
+			{
+
+				turnedArray.splice(turnedArray.indexOf(this), 1)
+			}
+			ballArray[ballArray.length] = this
+			this.color = "black"
+			ball2.color = "black"
+		}
+		
+		this.flightCounter = 0
+		this.crashTime = 500	
+		this.startX = this.x
+		this.startY = this.y
+		this.vector[0] = Math.cos(thisResult)
+		this.vector[1] = Math.sin(thisResult)
+		this.expectedToCrash = false
+		
+		ball2.expectedToCrash = false
+		ball2.flightCounter = 0
+		ball2.startX = ball2.x
+		ball2.startY = ball2.y
+		ball2.vector[0] = Math.cos(ballResult)
+		ball2.vector[1] = Math.sin(ballResult)
+		
+	}
+
+	
+
+ 	this.draw = function() 
+ 	{
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
+        ctx.fill();
+        ctx.closePath();
+    };
+}
