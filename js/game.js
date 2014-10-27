@@ -123,6 +123,150 @@ var render = function (deltaTime)
 
 	bar.drawLine(fighterBar);
 
+	drawAndBlastBalls();
+
+	centerColor = "rgb(" +String(center.redCounter)+", 0, 0)";
+	center.redCounter = Math.max(center.redCounter-1, 0)
+	center.draw()
+
+	pad.draw()
+    
+    drawTurned();
+
+	if(gameOver == true)
+	{
+		ctx.fillStyle = "black"
+		ctx.font="20px Tekton Pro";
+		ctx.fillText("You survived "+survivedSeconds+" seconds of invading balls. ",canvas.width/2 - 150,canvas.height /2-25)
+		ctx.fillText("Press SPACE to try again.",canvas.width/2 - 100,canvas.height /2)
+	}
+    
+	drawBall();
+
+	drawLasers();
+
+	drawShots();
+
+	drawFighters();
+
+	if(gameOver == false)
+	{
+		var Now = Date.now()
+		survivedSeconds = Math.floor((Now-startTime)/1000)
+		ctx.fillStyle = "black"
+		ctx.font="40px Tekton Pro";
+		ctx.fillText(String(Math.floor((Now-startTime)/1000)),canvas.width/2-20,100)
+	}
+
+	ctx.fillStyle = 'rgba('+String(a)+','+String(b)+','+String(c)+',0.4)';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	screenColorChanger();
+};
+
+var startTime = Date.now();
+var aCounter = 1
+var increasing = "a"
+var a = 0
+var b = 255
+var c = 255
+
+var main = function () 
+{
+	var now = Date.now();
+	var delta = now - then;
+
+	update(delta / 1000);
+	render(delta / 1000);
+
+	then = now;
+	requestAnimationFrame(main);
+};
+
+var ballColor = '#CF0000';
+var centerColor = "rgb(82, 92 ,209)"; //(R,G,B)
+
+var pad = new Pad()
+
+var songLength = 15*60
+var music = new Audio("music/Mix3.mp3");
+music.play()
+var then = Date.now();
+main();
+
+
+var comboSounds = [new Audio("sound/Combo/2/1.wav"), new Audio("sound/Combo/2/2.wav"), new Audio("sound/Combo/2/3.wav")]
+var comboThen = 0
+var comboStage = 0
+var comboHits = 0
+
+addEventListener("mousedown", doMouseDown, false);
+
+addEventListener("keydown", keyboard, true);
+
+var muted = false
+var fighterBar = 0;
+var fighterBarMax = 40;
+
+function keyboard(e)
+{
+	if(e.keyCode === 87) //32 = space
+	{
+		// W
+		if(center.redCounter === 0)
+		{
+			var blast = new AoEBlast();
+			blast.spawn();
+		}
+		else if (muted == false)
+		{
+			// REFUSE BUY
+			var refuseSound = new Audio("sound/Reject1.wav");
+			refuseSound.play()
+		}
+		
+	}
+	else if (e.keyCode == 69)
+	{
+		// E
+		if (fighterBar >= fighterBarMax)
+		{
+			var fighter = new Fighter();
+			fighter.spawn();
+			fighterBar = 0;
+		}
+
+		else if (muted == false)
+		{
+			// REFUSE BUY
+			var refuseSound = new Audio("sound/Reject1.wav");
+			refuseSound.play()
+		}
+		
+	}
+	else if (e.keyCode == 77)
+	{
+		// E
+		muted = !muted
+	}
+	else if (e.keyCode == 32)
+	{
+		// SPACE
+		if(gameOver == true)
+		{
+			location.reload();
+		}
+	}
+}
+
+function susbmitsceore(name, score){
+	xmlhttp.open("POST","waveos.pf-control.de/scores/submitscore.php",true);
+	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xmlhttp.send("username=" + name + "&score=" + score);
+}
+
+function drawAndBlastBalls()
+{
 	aoeArray.forEach(function(blast)
 	{
 		if(blast.radius < blast.maxBlastRadius)
@@ -148,14 +292,11 @@ var render = function (deltaTime)
 		}
 		blast.drawBlast()
 	});
+}
 
-	centerColor = "rgb(" +String(center.redCounter)+", 0, 0)";
-	center.redCounter = Math.max(center.redCounter-1, 0)
-	center.draw()
-
-	pad.draw()
-   
-    turnedArray.forEach(function(turned)
+function drawTurned()
+{
+	turnedArray.forEach(function(turned)
     {
     	turned.moveIntoOrbit()
         turned.circleCounter += turned.circleSpeed
@@ -197,16 +338,11 @@ var render = function (deltaTime)
 
 		turned.draw()
 	});
+}
 
-	if(gameOver == true)
-	{
-		ctx.fillStyle = "black"
-		ctx.font="20px Tekton Pro";
-		ctx.fillText("You survived "+survivedSeconds+" seconds of invading balls. ",canvas.width/2 - 150,canvas.height /2-25)
-		ctx.fillText("Press SPACE to try again.",canvas.width/2 - 100,canvas.height /2)
-	}
-    	
-    ballArray.forEach(function(ball)
+function drawBall()
+{
+	ballArray.forEach(function(ball)
     {
         ball.flightCounter += 1;
 								
@@ -358,7 +494,10 @@ var render = function (deltaTime)
        
         ball.draw();
 	});
+}
 
+function drawLasers()
+{
 	laserArray.forEach(function(laser)
 	{
 		laser.flightCounter += 1;
@@ -378,7 +517,10 @@ var render = function (deltaTime)
 
 		laser.drawLaser()
 	});
+}
 
+function drawShots()
+{
 	shotArray.forEach(function(shot)
 	{
 			if (shot.Target != false)
@@ -413,7 +555,10 @@ var render = function (deltaTime)
 			shot.drawShot()
 		}
 	});
+}
 
+function drawFighters()
+{
 	fighterArray.forEach(function(fighter)
 	{
 		if (fighter.leaving == false)
@@ -435,19 +580,10 @@ var render = function (deltaTime)
 		fighter.drawFighter()
 		
 	});
+}
 
-	if(gameOver == false)
-	{
-		var Now = Date.now()
-		survivedSeconds = Math.floor((Now-startTime)/1000)
-		ctx.fillStyle = "black"
-		ctx.font="40px Tekton Pro";
-		ctx.fillText(String(Math.floor((Now-startTime)/1000)),canvas.width/2-20,100)
-	}
-
-	ctx.fillStyle = 'rgba('+String(a)+','+String(b)+','+String(c)+',0.4)';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+function screenColorChanger()
+{
 	if (increasing == "a")
 	{
 		a+= 1
@@ -475,105 +611,4 @@ var render = function (deltaTime)
 			increasing = "a"
 		}
 	}
-};
-
-var startTime = Date.now();
-var aCounter = 1
-var increasing = "a"
-var a = 0
-var b = 255
-var c = 255
-
-var main = function () 
-{
-	var now = Date.now();
-	var delta = now - then;
-
-	update(delta / 1000);
-	render(delta / 1000);
-
-	then = now;
-	requestAnimationFrame(main);
-};
-
-var ballColor = '#CF0000';
-var centerColor = "rgb(82, 92 ,209)"; //(R,G,B)
-
-var pad = new Pad()
-
-var songLength = 15*60
-var music = new Audio("music/Mix3.mp3");
-music.play()
-var then = Date.now();
-main();
-
-
-var comboSounds = [new Audio("sound/Combo/2/1.wav"), new Audio("sound/Combo/2/2.wav"), new Audio("sound/Combo/2/3.wav")]
-var comboThen = 0
-var comboStage = 0
-var comboHits = 0
-
-addEventListener("mousedown", doMouseDown, false);
-
-addEventListener("keydown", keyboard, true);
-
-var muted = false
-var fighterBar = 0;
-var fighterBarMax = 40;
-
-function keyboard(e)
-{
-	if(e.keyCode === 87) //32 = space
-	{
-		// W
-		if(center.redCounter === 0)
-		{
-			var blast = new AoEBlast();
-			blast.spawn();
-		}
-		else if (muted == false)
-		{
-			// REFUSE BUY
-			var refuseSound = new Audio("sound/Reject1.wav");
-			refuseSound.play()
-		}
-		
-	}
-	else if (e.keyCode == 69)
-	{
-		// E
-		if (fighterBar >= fighterBarMax)
-		{
-			var fighter = new Fighter();
-			fighter.spawn();
-			fighterBar = 0;
-		}
-
-		else if (muted == false)
-		{
-			// REFUSE BUY
-			var refuseSound = new Audio("sound/Reject1.wav");
-			refuseSound.play()
-		}
-		
-	}
-	else if (e.keyCode == 77)
-	{
-		// E
-		muted = !muted
-	}
-	else if (e.keyCode == 32)
-	{
-		// SPACE
-		if(gameOver == true)
-		{
-			location.reload();
-		}
-	}
-}
-
-function susbmitsceore(name, score){
-	xmlhttp.open("POST","waveos.pf-control.de/scores/submitscore.php",true);
-	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-	xmlhttp.send("username=" + name + "&score=" + score);
 }
