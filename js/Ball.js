@@ -299,7 +299,7 @@ function Ball()
 	        	circle.radius -= 5
 	        	if (muted == false)
 	        	{
-	    //     		var haakon = new Audio("sound/LoseHealth.wav");
+	   				//var haakon = new Audio("sound/LoseHealth.wav");
 					// haakon.play()
 	        	}
 	        	

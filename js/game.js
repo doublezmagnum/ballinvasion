@@ -44,7 +44,7 @@ var mouseY = 0
 document.oncontextmenu = function(e){
  var evt = new Object({keyCode:93});
  stopEvent(e);
- keyboardUp(evt);
+ //keyboardUp(evt);
 }
 function stopEvent(event){
  if(event.preventDefault != undefined)
