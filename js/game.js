@@ -69,33 +69,32 @@ function doMouseDown(event)
 	var sy = circle.y
 }
 
-function getPosition(e) {
-    e = e || window.event;
-    var cursor = {x:0, y:0};
-    if (e.pageX || e.pageY) {
-        cursor.x = e.pageX;
-        cursor.y = e.pageY;
+
+function getX(event, canvas){
+     if(event.offsetX){
+       return event.offsetX;
+     }
+     if(event.clientX){
+     return event.clientX - canvas.offsetLeft;
+     }
+    return null;
+ }
+
+function getY(event, canvas){
+    if(event.offsetY){//chrome and IE
+        return event.offsetY;
     }
-    else {
-        cursor.x = e.clientX +
-            (document.documentElement.scrollLeft ||
-            document.body.scrollLeft) -
-            document.documentElement.clientLeft;
-        cursor.y = e.clientY +
-            (document.documentElement.scrollTop ||
-            document.body.scrollTop) -
-            document.documentElement.clientTop;
+    if(event.clientY){// FF
+        return event.clientY- canvas.offsetTop;
     }
-    return cursor;
+    return null;    
 }
 
 addEventListener("mousemove", function (e) 
 {
-	// mouseX = event.clientX - rect.left + document.body.scrollLeft;
-	// mouseY = event.clientY - rect.top + document.body.scrollTop;
 
-	mouseX = getPosition().x;
-	mouseY = getPosition().y;
+	mouseX = getX(e, canvas);
+	mouseY = getY(e, canvas);
 
 	var dx = mouseX - circle.x
 	var dy = circle.y - mouseY
