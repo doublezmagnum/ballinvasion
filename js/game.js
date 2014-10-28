@@ -40,6 +40,19 @@ var circle =
 var rect = canvas.getBoundingClientRect();
 var mouseX = 0
 var mouseY = 0
+
+document.oncontextmenu = function(e){
+ var evt = new Object({keyCode:93});
+ stopEvent(e);
+ keyboardUp(evt);
+}
+function stopEvent(event){
+ if(event.preventDefault != undefined)
+  event.preventDefault();
+ if(event.stopPropagation != undefined)
+  event.stopPropagation();
+}
+
 function doMouseDown(event)
 {
 	if (center.redCounter < 200)
