@@ -40,6 +40,8 @@ var circle =
 var rect = canvas.getBoundingClientRect();
 var mouseX = 0
 var mouseY = 0
+var deltaMouseX = 0
+var deltaMouseY = 0
 
 // THIS CODE DISABLES RIGHT CLICKING - SHOULD BE ACTIVATED IN THE RELEASED GAME - DEACTIVATED FOR DEBUGGING PURPOSES
 /*document.oncontextmenu = function(e){
@@ -106,13 +108,17 @@ function getY(event, canvas){
 
 addEventListener("mousemove", function (e) 
 {
-
+	deltaMouseX = getX(e, canvas)-mouseX
+	deltaMouseY = getY(e, canvas)-mouseY
+	deltaMouse = Math.sqrt(deltaMouseX*deltaMouseX+deltaMouseY*deltaMouseY)
 	mouseX = getX(e, canvas);
 	mouseY = getY(e, canvas);
 
 	var dx = mouseX - circle.x
 	var dy = circle.y - mouseY
 	var distance = Math.sqrt(dx * dx + dy * dy)
+	
+	deltaRotation = Math.atan2(-dy, dx)-pad.rotation
 	var angle = 0
 
 	angle = Math.atan2(-dy, dx)
@@ -145,7 +151,7 @@ var update = function (modifier)
 	}
 	if(fighterBar <= fighterBarMax)
 	{
-		fighterBar += 0.015;
+		fighterBar += 1;
 	}
 
 	updateBlast()
@@ -251,7 +257,7 @@ addEventListener("keydown", keyboard, true);
 
 var muted = false
 var fighterBar = 0;
-var fighterBarMax = 40;
+var fighterBarMax = canvas.width;
 
 function keyboard(e)
 {
@@ -274,12 +280,12 @@ function keyboard(e)
 	else if (e.keyCode == 69)
 	{
 		// E
-		//if (fighterBar >= fighterBarMax)
-		//{
+		if (fighterBar >= fighterBarMax)
+		{
 			var fighter = new Fighter();
 			fighter.spawn();
 			fighterBar = 0;
-		//}
+		}
 
 		if (muted == false)
 		{

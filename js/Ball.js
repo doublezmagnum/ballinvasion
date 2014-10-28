@@ -72,11 +72,21 @@ function Ball()
 		this.friendly = true
 		this.color = "#0000ff"
 
-		//this.crashAngle -= Math.PI / 2
+		if (Math.abs(deltaRotation) > 0)
+		{
+			var angleChange = 10*deltaRotation
+			console.trace("---", angleChange, deltaRotation)
+			angleChange = Math.max(angleChange, -Math.PI/2)
+			angleChange = Math.min(angleChange, Math.PI/2)
+
+			console.trace(angleChange, deltaRotation)
+			this.crashAngle += angleChange
+		}
+		
 
 		this.circleCounter = 0
 		this.circleSpeed = 1 / (100)
-		this.orbitRadius = 1.5*circle.radius + 4*circle.radius*Math.random()
+		this.orbitRadius = Math.min(2*circle.radius + deltaMouse*deltaMouse, canvas.height-300)
 
 		this.expectedToCrash = false
 		this.errorSpeedX = 0
@@ -144,16 +154,16 @@ function Ball()
 		this.crashTime = 500	
 		this.startX = this.x
 		this.startY = this.y
-		this.vector[0] = this.speed*Math.cos(thisResult)
-		this.vector[1] = this.speed*Math.sin(thisResult)
+		this.vector[0] = Math.cos(thisResult)
+		this.vector[1] = Math.sin(thisResult)
 		this.expectedToCrash = false
 		
 		ball2.expectedToCrash = false
 		ball2.flightCounter = 0
 		ball2.startX = ball2.x
 		ball2.startY = ball2.y
-		ball2.vector[0] = this.speed*Math.cos(ballResult)
-		ball2.vector[1] = this.speed*Math.sin(ballResult)
+		ball2.vector[0] = Math.cos(ballResult)
+		ball2.vector[1] = Math.sin(ballResult)
 		
 	}
 
@@ -241,15 +251,7 @@ function Ball()
 	        			{
 	        				if(circle.radius <= 50)
 	        				{
-	        					circle.radius += comboHits*5
-	        					for (var yk = 0; yk < turnedArray.length; yk++)
-	        					{
-	        						turnedArray[yk].orbitRadius += comboHits*5
-	        					}
-	        					for (var bk = 0; bk < ballArray.length; bk++)
-			        			{
-			        				ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
-			        			}
+	        					center.handleRadiusChange(comboHits*5)
 	        				}
 	        			}
 	        		}
@@ -278,15 +280,7 @@ function Ball()
         			{
         				if(circle.radius <= 200)
         				{
-        					circle.radius += comboHits*5
-        					for (var uk = 0; uk < turnedArray.length; uk++)
-        					{
-        						turnedArray[uk].orbitRadius += comboHits*5
-        					}
-        					for (var bk = 0; bk < ballArray.length; bk++)
-		        			{
-		        				ballArray[bk].crashTime = Math.max(0, ballArray[bk].crashTime-comboHits*3)
-		        			}
+        					center.handleRadiusChange(comboHits*5)
         				}
         			}
 
@@ -302,7 +296,7 @@ function Ball()
         			comboStage = 0
         		}
 
-	        	circle.radius -= 5
+	        	center.handleRadiusChange(-5)
 	        	if (muted == false)
 	        	{
 	   				//var haakon = new Audio("sound/LoseHealth.wav");

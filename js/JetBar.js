@@ -10,7 +10,7 @@ function jetBar(){
 		ctx.beginPath();
 
 		ctx.moveTo(this.x, this.y);
-		ctx.lineTo(this.x + length * (30 + 2), this.y);
+		ctx.lineTo(this.x + length, this.y);
 		ctx.lineWidth = 15;
 
 		ctx.stroke();
