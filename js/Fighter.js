@@ -99,7 +99,7 @@ function Fighter()
 			{
 				if (muted == false)
 				{
-					var haakon2 = new Audio("sound/InterFace2.wav");
+					var haakon2 = new Audio("sound/InterFace2.mp3");
 					haakon2.play()
 				}
 				

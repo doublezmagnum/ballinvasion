@@ -63,7 +63,7 @@ function Ball()
 		this.destroyed = true;
 		if (muted == false)
 		{
-			var snd = new Audio("sound/Interface1.wav");
+			var snd = new Audio("sound/Interface1.mp3");
 			snd.play()
 		}
 		
@@ -167,8 +167,6 @@ function Ball()
 		var normalAngle = distanceAngle - Math.PI/2
 		var crashAngleC = Math.atan2(this.vector[1],this.vector[0])
 		var resultAngleC = 2*normalAngle-crashAngleC
-
-		console.trace(normalAngle, crashAngleC) 
 		
 		this.vector[0]=Math.cos(resultAngleC)
 		this.vector[1]=Math.sin(resultAngleC)

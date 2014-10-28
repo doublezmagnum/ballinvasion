@@ -48,7 +48,7 @@ function doMouseDown(event)
 		var angleError = -0.1
 		if (muted == false)
 		{
-			var snd = new Audio("sound/Menu1.wav");
+			var snd = new Audio("sound/Menu1.mp3");
 			snd.play()
 		}
 		
@@ -61,7 +61,7 @@ function doMouseDown(event)
 	}
 	else if (muted == false)
 	{
-		var refuseSound = new Audio("sound/Reject1.wav");
+		var refuseSound = new Audio("sound/Reject1.mp3");
 		refuseSound.play()
 	}
 
@@ -69,11 +69,33 @@ function doMouseDown(event)
 	var sy = circle.y
 }
 
+function getPosition(e) {
+    e = e || window.event;
+    var cursor = {x:0, y:0};
+    if (e.pageX || e.pageY) {
+        cursor.x = e.pageX;
+        cursor.y = e.pageY;
+    }
+    else {
+        cursor.x = e.clientX +
+            (document.documentElement.scrollLeft ||
+            document.body.scrollLeft) -
+            document.documentElement.clientLeft;
+        cursor.y = e.clientY +
+            (document.documentElement.scrollTop ||
+            document.body.scrollTop) -
+            document.documentElement.clientTop;
+    }
+    return cursor;
+}
 
 addEventListener("mousemove", function (e) 
 {
-	mouseX = event.clientX - rect.left + document.body.scrollLeft;
-	mouseY = event.clientY - rect.top + document.body.scrollTop;
+	// mouseX = event.clientX - rect.left + document.body.scrollLeft;
+	// mouseY = event.clientY - rect.top + document.body.scrollTop;
+
+	mouseX = getPosition().x;
+	mouseY = getPosition().y;
 
 	var dx = mouseX - circle.x
 	var dy = circle.y - mouseY
@@ -231,7 +253,7 @@ function keyboard(e)
 		else if (muted == false)
 		{
 			// REFUSE BUY
-			var refuseSound = new Audio("sound/Reject1.wav");
+			var refuseSound = new Audio("sound/Reject1.mp3");
 			refuseSound.play()
 		}
 		
@@ -249,7 +271,7 @@ function keyboard(e)
 		else if (muted == false)
 		{
 			// REFUSE BUY
-			var refuseSound = new Audio("sound/Reject1.wav");
+			var refuseSound = new Audio("sound/Reject1.mp3");
 			refuseSound.play()
 		}
 		

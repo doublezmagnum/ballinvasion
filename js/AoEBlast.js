@@ -4,7 +4,7 @@ function AoEBlast()
 	{
 		if (muted == false)
 		{
-			var blastSound = new Audio('sound/Mail1.wav')
+			var blastSound = new Audio('sound/Mail1.mp3')
 			blastSound.play()
 		}
 		
