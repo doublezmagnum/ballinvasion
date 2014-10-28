@@ -298,7 +298,7 @@ function drawTurned()
 		{
 			var ball2 = ballArray[e]
 
-			if (ball2 != turned)
+			if (ball2 != turned && ball2.expectedToCrash == true)
 			{
 				if (turned.testCollision(ball2) == true)
 				{
@@ -307,7 +307,7 @@ function drawTurned()
 			}
 		}
 
-		for (var f = 0; f < turnedArray.length; f++)
+		/*for (var f = 0; f < turnedArray.length; f++)
 		{
 			var ballf = turnedArray[f]
 			if (ballf != turned)
@@ -317,7 +317,7 @@ function drawTurned()
 					turned.handleCollision(ballf, false)
 				}
 			}	
-		}
+		}*/
 
 		turned.draw()
 	});

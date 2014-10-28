@@ -72,11 +72,11 @@ function Ball()
 		this.friendly = true
 		this.color = "#0000ff"
 
-		this.crashAngle -= Math.PI / 2
+		//this.crashAngle -= Math.PI / 2
 
 		this.circleCounter = 0
 		this.circleSpeed = 1 / (100)
-		this.orbitRadius = 1.5*circle.radius + 1.5*circle.radius*Math.random()
+		this.orbitRadius = 1.5*circle.radius + 4*circle.radius*Math.random()
 
 		this.expectedToCrash = false
 		this.errorSpeedX = 0
@@ -157,12 +157,43 @@ function Ball()
 		
 	}
 
+	this.handleCenterCollision = function()
+	{
+		//console.trace("Black Ball Center Collision")
+		var dx = circle.x-this.x
+		var dy = this.y-circle.y
+		
+		var distanceAngle = Math.atan2(dy, dx)
+		var normalAngle = distanceAngle - Math.PI/2
+		var crashAngleC = Math.atan2(this.vector[1],this.vector[0])
+		var resultAngleC = 2*normalAngle-crashAngleC
+
+		console.trace(normalAngle, crashAngleC) 
+		
+		this.vector[0]=Math.cos(resultAngleC)
+		this.vector[1]=Math.sin(resultAngleC)
+
+		this.flightCounter = 0
+		this.startX = this.x
+		this.startY = this.y
+	}
+
 	this.updateBall = function(ball)
 	{
 		ball.flightCounter += 1;
 								
 		ball.x = ball.startX + ball.vector[0] * ball.flightCounter;
 		ball.y = ball.startY - ball.vector[1] * ball.flightCounter;
+
+		if (ball.expectedToCrash == false)
+		{
+			//console.trace("Testing if crash")
+			if (ball.testCollision(circle) == true)
+			{
+				//console.trace("Should crash")
+				ball.handleCenterCollision()
+			}
+		}
          
         if (ball.flightCounter == Math.round(ball.crashTime) && ball.expectedToCrash == true)
         {
