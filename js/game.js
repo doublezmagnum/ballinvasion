@@ -56,6 +56,32 @@ function stopEvent(event){
   event.stopPropagation();
 }*/
 
+navigator.sayswho= (function(){
+    var ua= navigator.userAgent, tem, 
+    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if(/trident/i.test(M[1])){
+        tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return 'IE '+(tem[1] || '');
+    }
+    if(M[1]=== 'Chrome'){
+        tem= ua.match(/\bOPR\/(\d+)/)
+        if(tem!= null) return 'Opera '+tem[1];
+    }
+    M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+    if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+
+var soundType = ""
+if (navigator.sayswho.indexOf("Opera") == -1)
+{
+	soundType = ".mp3"
+}
+else
+{
+	soundType = ".wav"
+}
+
 function doMouseDown(event)
 {
 	if (center.redCounter < 200)
@@ -64,7 +90,7 @@ function doMouseDown(event)
 		var angleError = -0.1
 		if (muted == false)
 		{
-			var snd = new Audio("sound/Menu1.mp3");
+			var snd = new Audio("sound/Menu1"+soundType);
 			snd.play()
 		}
 		

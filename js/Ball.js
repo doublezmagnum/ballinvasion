@@ -75,11 +75,11 @@ function Ball()
 		if (Math.abs(deltaRotation) > 0)
 		{
 			var angleChange = 10*deltaRotation
-			console.trace("---", angleChange, deltaRotation)
+			//console.trace("---", angleChange, deltaRotation)
 			angleChange = Math.max(angleChange, -Math.PI/2)
 			angleChange = Math.min(angleChange, Math.PI/2)
 
-			console.trace(angleChange, deltaRotation)
+			//console.trace(angleChange, deltaRotation)
 			this.crashAngle += angleChange
 		}
 		
