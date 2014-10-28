@@ -19,11 +19,10 @@ function Shot()
 
 	this.updateShot = function(shot)
 	{
+		shot.x += shot.speed * shot.xDif;
+		shot.y += shot.speed * shot.yDif;
 		if (shot.Target != false)
 		{
-			shot.x += shot.speed * shot.xDif;
-			shot.y += shot.speed * shot.yDif;
-
 			if (Math.sqrt((shot.Target.x-shot.x)*(shot.Target.x-shot.x)+(shot.y-shot.Target.y)*(shot.y-shot.Target.y)) < shot.parentPlane.sideLength + shot.Target.radius)
 			{
 				try
@@ -47,6 +46,26 @@ function Shot()
 					shot.parentPlane = false;
 				}
 			}			
+		}
+		else
+		{
+			for (var iu = 0; iu < ballArray.length; iu++)
+			{
+				var balll = ballArray[iu]
+				if (Math.sqrt((balll.x-shot.x)*(balll.x-shot.x)+(shot.y-balll.y)*(shot.y-balll.y)) < 14 + balll.radius) // need crash radius constant
+				{
+					if (balll.destroyed == false)
+					{
+						balll.destroyed = true
+						if (ballArray.indexOf(balll) != -1)
+						{
+							ballArray.splice(ballArray.indexOf(balll), 1);
+						}
+						shotArray.splice(shotArray.indexOf(shot), 1)
+						shot.parentPlane = false;
+					}
+				}
+			}	
 		}
 	}
 

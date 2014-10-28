@@ -41,7 +41,8 @@ var rect = canvas.getBoundingClientRect();
 var mouseX = 0
 var mouseY = 0
 
-document.oncontextmenu = function(e){
+// THIS CODE DISABLES RIGHT CLICKING - SHOULD BE ACTIVATED IN THE RELEASED GAME - DEACTIVATED FOR DEBUGGING PURPOSES
+/*document.oncontextmenu = function(e){
  var evt = new Object({keyCode:93});
  stopEvent(e);
  //keyboardUp(evt);
@@ -51,7 +52,7 @@ function stopEvent(event){
   event.preventDefault();
  if(event.stopPropagation != undefined)
   event.stopPropagation();
-}
+}*/
 
 function doMouseDown(event)
 {
@@ -273,14 +274,14 @@ function keyboard(e)
 	else if (e.keyCode == 69)
 	{
 		// E
-		if (fighterBar >= fighterBarMax)
-		{
+		//if (fighterBar >= fighterBarMax)
+		//{
 			var fighter = new Fighter();
 			fighter.spawn();
 			fighterBar = 0;
-		}
+		//}
 
-		else if (muted == false)
+		if (muted == false)
 		{
 			// REFUSE BUY
 			var refuseSound = new Audio("sound/Reject1.mp3");

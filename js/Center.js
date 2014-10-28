@@ -10,4 +10,9 @@ function Center()
         ctx.fill();
         ctx.closePath();
 	}
+
+	this.handleRadiusChange = function(radiusChange)
+	{
+		circle.radius += radiusChange
+	}
 }

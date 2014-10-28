@@ -144,16 +144,16 @@ function Ball()
 		this.crashTime = 500	
 		this.startX = this.x
 		this.startY = this.y
-		this.vector[0] = Math.cos(thisResult)
-		this.vector[1] = Math.sin(thisResult)
+		this.vector[0] = this.speed*Math.cos(thisResult)
+		this.vector[1] = this.speed*Math.sin(thisResult)
 		this.expectedToCrash = false
 		
 		ball2.expectedToCrash = false
 		ball2.flightCounter = 0
 		ball2.startX = ball2.x
 		ball2.startY = ball2.y
-		ball2.vector[0] = Math.cos(ballResult)
-		ball2.vector[1] = Math.sin(ballResult)
+		ball2.vector[0] = this.speed*Math.cos(ballResult)
+		ball2.vector[1] = this.speed*Math.sin(ballResult)
 		
 	}
 
@@ -185,12 +185,18 @@ function Ball()
 
 		if (ball.expectedToCrash == false)
 		{
-			//console.trace("Testing if crash")
 			if (ball.testCollision(circle) == true)
 			{
-				//console.trace("Should crash")
 				ball.handleCenterCollision()
 			}
+			//BUUGED AS HELL.
+			/*for (var po =0; po<ballArray.length;po++)
+			{
+				if (ball.testCollision(ballArray[po]) == true)
+				{
+					ball.handleCollision(ballArray[po])
+				}
+			}*/
 		}
          
         if (ball.flightCounter == Math.round(ball.crashTime) && ball.expectedToCrash == true)
