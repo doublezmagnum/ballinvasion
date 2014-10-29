@@ -20,7 +20,6 @@ var pad =
 };
 
 var spawnCount = 0;
-var spawnDistance = 200 // Should be increased
 var ballArray = []
 var wasteArray = []
 var ballRadius = 7
@@ -29,13 +28,6 @@ var fighterArray = []
 var shotArray = []
 
 var laserArray = []
-
-var circle = 
-{
-	radius: 50,
-	x: canvas.width/2,
-	y: canvas.height/2
-}
 
 var rect = canvas.getBoundingClientRect();
 var mouseX = 0
@@ -57,6 +49,17 @@ function stopEvent(event){
  if(event.stopPropagation != undefined)
   event.stopPropagation();
 }*/
+
+document.getElementById("playagainbtn").addEventListener("click", function (e) 
+{
+	location.reload();
+	document.getElementById("overlay").style.display = "none";
+}, false);
+
+document.getElementById("save").addEventListener("click", function (e) 
+{
+	submitscore(document.getElementById("namefield").value, survivedSeconds);
+}, false);
 
 navigator.sayswho= (function(){
     var ua= navigator.userAgent, tem, 
@@ -109,8 +112,8 @@ function doMouseDown(event)
 		refuseSound.play()
 	}
 
-	var sx = circle.x
-	var sy = circle.y
+	var sx = center.x
+	var sy = center.y
 }
 
 
@@ -142,8 +145,8 @@ addEventListener("mousemove", function (e)
 	mouseX = getX(e, canvas);
 	mouseY = getY(e, canvas);
 
-	var dx = mouseX - circle.x
-	var dy = circle.y - mouseY
+	var dx = mouseX - center.x
+	var dy = center.y - mouseY
 	var distance = Math.sqrt(dx * dx + dy * dy)
 	
 	try
@@ -162,8 +165,8 @@ addEventListener("mousemove", function (e)
 
 	angle = Math.atan2(-dy, dx)
 	
-	pad.x = circle.x
-	pad.y = circle.y
+	pad.x = center.x
+	pad.y = center.y
 
 	pad.rotation = angle
 	pad.visualRotation = angle
@@ -177,31 +180,38 @@ var test = false
 var aoeArray = [] 
 var gameOver = false
 var survivedSeconds = 0
-var ballSpeed = 2
 var bar = new jetBar();
 
 var update = function (modifier) 
 {
-	if (Math.random() < spawnLimit && gameOver == false)
+	if (gameOver == false)
 	{
-		var ball = new Ball();
-		ball.spawn(ballSpeed);
-		spawnLimit += 0.0002
-	}
-	if(fighterBar <= fighterBarMax)
-	{
-		fighterBar += 1;
-	}
+		if (Math.random() < spawnLimit && gameOver == false)
+		{
+			var ball = new Ball();
+			ball.spawn(ballSpeed+5000*spawnLimit);
+			spawnLimit += 0.0005
+		}
+		if(fighterBar <= fighterBarMax)
+		{
+			fighterBar += 1;
+		}
 
-	updateBlast()
+		if (center.changing == true)
+		{
+			center.radiusChanger()
+		}
 
-	updateBall();
+		updateBlast()
 
-	updateLasers();
+		updateBall();
 
-	updateShots();
+		updateLasers();
 
-	updateFighters();
+		updateShots();
+
+		updateFighters();
+	}	
 };
 
 var render = function (deltaTime) 
@@ -211,15 +221,10 @@ var render = function (deltaTime)
 	ctx.fillStyle = '#36A8E0';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	bar.drawLine(fighterBar);
-
-	drawBlast();
-
-	centerColor = "rgb(" +String(center.redCounter)+", 0, 0)";
-	center.redCounter = Math.max(center.redCounter-1, 0)
-    
-    drawTurned();
-
+	
+	ctx.fillStyle = 'rgba('+String(a)+','+String(b)+','+String(c)+','+String(0.4)+')';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	
 	if(gameOver == true)
 	{
 		ctx.fillStyle = "black"
@@ -228,35 +233,43 @@ var render = function (deltaTime)
 		ctx.fillText("Press SPACE to try again.",canvas.width/2 - 100,canvas.height /2)
 	}
 
-
-	drawWaste();
-
-	drawFighters();
-
-	drawShots();
-
-	drawLasers();
-    
-	drawBall();
-
-	pad.draw()
-
-	center.draw()
-
-	if(gameOver == false)
+	else if(gameOver == false)
 	{
+		bar.drawLine(fighterBar);
+
+		drawBlast();
+
+		centerColor = "rgb(" +String(center.redCounter)+", 0, 0)";
+		center.redCounter = Math.max(center.redCounter-1, 0)
+	    
+	    drawTurned();
+
+		drawWaste();
+
+		drawFighters();
+
+		drawShots();
+
+		drawLasers();
+	    
+		drawBall();
+
+		pad.draw()
+
+		center.draw()
+
+
 		var Now = Date.now()
 		survivedSeconds = Math.floor((Now-startTime)/1000)
 		ctx.fillStyle = "black"
 		ctx.font="40px Tekton Pro";
 		ctx.fillText(String(Math.floor((Now-startTime)/1000)),canvas.width/2-20,100)
 	}
-
-	ctx.fillStyle = 'rgba('+String(255)+','+String(255)+','+String(255)+','+String(0.05*Math.random()+0.5+0.2*Math.sin(0.01*d))+')';
+	
+	var wind = 0.05*Math.random()+0.5+0.05*Math.sin(0.01*d)-0.03*center.radius+0.2
+	//console.trace(wind)
+	ctx.fillStyle = 'rgba('+String(255)+','+String(255)+','+String(255)+','+String(wind)+')';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = 'rgba('+String(a)+','+String(b)+','+String(c)+','+String(0.4)+')';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 
 	screenColorChanger();
 };
@@ -366,7 +379,7 @@ function keyboard(e)
 	}
 }
 
-function susbmitsceore(name, score){
+function submitscore(name, score){
 	xmlhttp.open("POST","waveos.pf-control.de/scores/submitscore.php",true);
 	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 	xmlhttp.send("username=" + name + "&score=" + score);
@@ -456,11 +469,11 @@ function drawWaste()
 {
 	wasteArray.forEach(function(wasteBall)
 	{
-		wasteBall.flightCounter += 1;
+		wasteBall.flightCounter += wasteBall.flightCounterSpeed*0.01;
 		wasteBall.x = wasteBall.startX + wasteBall.vector[0] * wasteBall.flightCounter;
 		wasteBall.y = wasteBall.startY - wasteBall.vector[1] * wasteBall.flightCounter;
 
-		if (wasteBall.testCollision(circle) == true)
+		if (wasteBall.testCollision(center) == true)
 		{
 			wasteBall.handleCenterCollision()
 		}

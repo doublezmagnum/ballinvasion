@@ -24,16 +24,16 @@ function Fighter()
 		this.absvector = 0;
 		this.radius = 5;
 
-		var dx = -circle.x + mouseX
-	   	var dy = circle.y - mouseY
+		var dx = -center.x + mouseX
+	   	var dy = center.y - mouseY
 	   	var distance = Math.sqrt(dy*dy+dx*dx)
 
 	   	this.rotation = -Math.atan2(dy, dx) + (Math.PI/2)
 
 		this.vector = [this.speed * Math.cos(-Math.atan2(dy, dx)), this.speed * Math.sin(-Math.atan2(dy, dx))];
 
-		this.x = circle.x + circle.radius * Math.cos(this.rotation-Math.PI/2)
-		this.y = circle.y + circle.radius * Math.sin(this.rotation-Math.PI/2)
+		this.x = center.x + center.radius * Math.cos(this.rotation-Math.PI/2)
+		this.y = center.y + center.radius * Math.sin(this.rotation-Math.PI/2)
 			
 		this.rotAks = 0.02;
 		this.degrees = 0;
@@ -117,8 +117,8 @@ function Fighter()
 			this.leaving = true
 			this.flightCounter = 0
 
-			var dx = -circle.x + mouseX
-	   		var dy = circle.y - mouseY
+			var dx = -center.x + mouseX
+	   		var dy = center.y - mouseY
 			
 			this.degrees = Math.atan2(dy, dx);
 		}
@@ -159,8 +159,8 @@ function Fighter()
 			this.leaving = true
 			this.flightCounter = 0
 
-			var dx = -circle.x + mouseX
-	   		var dy = circle.y - mouseY
+			var dx = -center.x + mouseX
+	   		var dy = center.y - mouseY
 			
 			this.degrees = Math.atan2(dy, dx);
 		}
