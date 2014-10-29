@@ -263,6 +263,7 @@ function Ball()
  		
         else if (ball.flightCounter > ball.crashTime + 20/(ball.speed*100) && ball.crashing==false)
         {
+        	center.redCounter += 100
         	console.trace("Crash SHould Be", ball.flightCounter,  ball.crashTime)
         	comboHits = 0
         	comboStage = 0

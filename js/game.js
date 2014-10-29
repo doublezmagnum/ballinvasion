@@ -103,7 +103,7 @@ function doMouseDown(event)
 	}
 	else if (muted == false)
 	{
-		var refuseSound = new Audio("sound/Reject1.mp3");
+		var refuseSound = new Audio("sound/Reject1"+soundType);
 		refuseSound.play()
 	}
 
@@ -266,13 +266,13 @@ var centerColor = "rgb(82, 92 ,209)"; //(R,G,B)
 var pad = new Pad()
 
 var songLength = 15*60
-var music = new Audio("music/Mix3.mp3");
+var music = new Audio("music/Mix3"+soundType);
 music.play()
 var then = Date.now();
 main();
 
 
-var comboSounds = [new Audio("sound/Combo/2/1.wav"), new Audio("sound/Combo/2/2.wav"), new Audio("sound/Combo/2/3.wav")]
+var comboSounds = [new Audio("sound/Combo/2/1"+soundType), new Audio("sound/Combo/2/2"+soundType), new Audio("sound/Combo/2/3.wav")]
 var comboThen = 0
 var comboStage = 0
 var comboHits = 0

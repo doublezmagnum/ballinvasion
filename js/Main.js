@@ -262,7 +262,7 @@ var render = function (deltaTime)
 		var Now = Date.now()
 		survivedSeconds = Math.floor((Now-startTime)/1000)
 		ctx.fillStyle = "black"
-		ctx.font="40px Tekton Pro";
+		ctx.font="60px Arial Black";
 		ctx.fillText(String(Math.floor((Now-startTime)/1000)),canvas.width/2-20,100)
 	}
 	
@@ -376,11 +376,41 @@ function keyboard(e)
 		{
 			location.reload();
 		}
+		else //INSTADEATH
+		{
+			survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
+				//meOverFunction(Math.floor((Date.now()-startTime)/1000));
+				gameOver = true
+	       		ballArray = []
+        		aoeArray = []
+	       		turnedArray = []
+	       		shotArray = []
+	       		fighterArray = []
+	       		center.x = 4000
+	       		center.y = 4000
+	       		center.x = 4000
+	       		center.y = 4000
+	       		center.radius = 200
+	       		pad.x = 4000
+	       		pad.y = 4000
+
+	       		document.getElementById("overlay").style.display = "block";
+	       		document.getElementById("score").value = survivedSeconds
+	       	
+		}
 	}
 }
 
 function submitscore(name, score){
-	xmlhttp.open("POST","waveos.pf-control.de/scores/submitscore.php",true);
+	var xmlhttp;
+	if (window.XMLHttpRequest){
+		xmlhttp=new XMLHttpRequest();
+	}
+	else{
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+
+	xmlhttp.open("POST","http://waveos.pf-control.de/scores/submitscore.php",true);
 	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 	xmlhttp.send("username=" + name + "&score=" + score);
 }
