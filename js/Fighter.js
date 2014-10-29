@@ -6,7 +6,7 @@ function Fighter()
 		this.sideLength = 20
 
 		this.hunting = false;
-		this.lasts = 30 //seconds
+		this.lasts = 5 //seconds
 		this.leaving = false;
 		this.ready = false
 		this.Target = false;
@@ -16,7 +16,7 @@ function Fighter()
 		this.speed = this.slowspeed;
 		this.reload = 0;
 		this.reloadCounter = 30;
-		this.huntingRange = 400;
+		this.huntingRange = Math.pow(600, 2);
 		this.shotsFired = false;
 		
 		this.vector_x = 0;
@@ -41,6 +41,25 @@ function Fighter()
 		fighterArray[fighterArray.length] = this
 
 	};	
+
+	this.updateFighter = function(fighter)
+	{
+		if (fighter.leaving == false)
+		{
+			if (fighter.hunting == true && fighter.ready == true)
+			{
+				fighter.calculateRoute(fighter.Target);
+			}
+			else 
+			{
+				fighter.searchForTarget();
+			}
+		}
+		else
+		{
+			fighter.disAppear()
+		}	
+	}
 
 	this.calculateRoute = function(target)
 	{
@@ -80,7 +99,7 @@ function Fighter()
 			{
 				if (muted == false)
 				{
-					var haakon2 = new Audio("sound/InterFace2.wav");
+					var haakon2 = new Audio("sound/InterFace2.mp3");
 					haakon2.play()
 				}
 				
@@ -123,7 +142,7 @@ function Fighter()
 		for (var cc = 0; cc < ballArray.length; cc++)
 		{
 			var ball6 = ballArray[cc]
-			if (ball6.beingTargeted == false && ball6.flightCounter < flightCounterIndex && Math.sqrt(Math.pow((ball6.x - this.x),2) + Math.pow((this.y - ball6.y),2)) < this.huntingRange)
+			if (ball6.beingTargeted == false && ball6.flightCounter < flightCounterIndex && Math.pow((ball6.x - this.x),2) + Math.pow((this.y - ball6.y),2) < this.huntingRange)
 			{
 				flightCounterIndex = ball6.flightCounter;
 				this.Target = ball6;
@@ -160,7 +179,13 @@ function Fighter()
 		this.x += this.vector[0]
 		this.y += this.vector[1]
 
-		if(this.flightCounter == 1000)
+		if (this.flightCounter % 9 == 0)
+		{
+			var nShot = new Shot()
+			nShot.spawn(this.x, this.y, this.vector[0], this.vector[1], this.rotation, false, this)
+		}
+
+		else if(this.flightCounter == 1000)
 		{
 			fighterArray.splice(fighterArray.indexOf(this))
 		}

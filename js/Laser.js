@@ -46,6 +46,23 @@ function Laser()
 		}
 	}
 
+	this.updateLaser = function(laser)
+	{
+		laser.flightCounter += 1;
+						
+		laser.x = laser.startX + laser.vector[0] * laser.flightCounter;
+		laser.y = laser.startY - laser.vector[1] * laser.flightCounter;
+
+		for (var y = 0; y < ballArray.length; y++)
+		{
+			var ball3 = ballArray[y]
+			if (laser.testCollision(ball3))
+			{
+				ballArray.splice(y, 1)
+			}
+		}
+	}
+
 	this.drawLaser = function()
 	{
 		
