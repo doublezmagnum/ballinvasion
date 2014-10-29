@@ -1,4 +1,4 @@
-var ballSpeed = 200
+var ballSpeed = 2
 var spawnDistance = 700
 
 function Ball() 
@@ -56,7 +56,7 @@ function Ball()
 		   	
 			//this.crashTime = -(Math.sqrt(-4*(this.vector[0]*this.vector[0]+this.vector[1]*this.vector[1])*(-(this.radius + circleHit)*(this.radius + circleHit)+sx*sx+sy*sy) + (2*sx*this.vector[0]+2*sy*this.vector[1])*(2*sx*this.vector[0]+2*sy*this.vector[1]))+2*sx*this.vector[0]+2*sy*this.vector[1])/(2*this.vector[0]*this.vector[0]+2*this.vector[1]*this.vector[1])
 			//this.crashTime = Number(this.crashTime.toFixed(2))
-			this.crashTime = (spawnDistance-center.radius-this.radius-10)/this.speed
+			this.crashTime = (spawnDistance-center.radius-this.radius-10)/(this.speed*100)
 			var distance = Math.sqrt(dx * dx + dy * dy)
 
 			this.crashAngle = -Math.atan2(dy, dx)
@@ -162,16 +162,16 @@ function Ball()
 		this.crashTime = 5	
 		this.startX = this.x
 		this.startY = this.y
-		this.vector[0] = this.speed*Math.cos(thisResult)
-		this.vector[1] = this.speed*Math.sin(thisResult)
+		this.vector[0] = Math.cos(thisResult)
+		this.vector[1] = Math.sin(thisResult)
 		this.expectedToCrash = false
 		
 		ball2.expectedToCrash = false
 		ball2.flightCounter = 0
 		ball2.startX = ball2.x
 		ball2.startY = ball2.y
-		ball2.vector[0] = ball2.speed*Math.cos(ballResult)
-		ball2.vector[1] = ball2.speed*Math.sin(ballResult)
+		ball2.vector[0] = Math.cos(ballResult)
+		ball2.vector[1] = Math.sin(ballResult)
 		if(ballArray.indexOf(ball2)!=1)
 		{
 			ballArray.splice(ballArray.indexOf(ball2),1)
@@ -191,8 +191,8 @@ function Ball()
 		var crashAngleC = Math.atan2(this.vector[1],this.vector[0])
 		var resultAngleC = 2*normalAngle-crashAngleC
 		
-		this.vector[0]=this.speed*Math.cos(resultAngleC)
-		this.vector[1]=this.speed*Math.sin(resultAngleC)
+		this.vector[0]=Math.cos(resultAngleC)
+		this.vector[1]=Math.sin(resultAngleC)
 
 		this.flightCounter = 0
 		this.startX = this.x
@@ -203,10 +203,12 @@ function Ball()
 	{
 		ball.flightCounter += 0.01;
 								
-		ball.x = ball.startX + ball.vector[0] * ball.flightCounter;
-		ball.y = ball.startY - ball.vector[1] * ball.flightCounter;
+		ball.x+=ball.vector[0]
+		ball.y-=ball.vector[1]
+		/*ball.x = ball.startX + ball.vector[0] * ball.flightCounter;
+		ball.y = ball.startY - ball.vector[1] * ball.flightCounter;*/
          
-        if (ball.flightCounter >= ball.crashTime && ball.flightCounter < ball.crashTime +7/ball.speed)
+        if (ball.flightCounter >= ball.crashTime && ball.flightCounter < ball.crashTime +8/(ball.speed*100))
         {
         	var Dangle = Math.abs(ball.crashAngle-pad.rotation)
 			
@@ -259,7 +261,7 @@ function Ball()
         	}
        	}
  		
-        else if (ball.flightCounter > ball.crashTime + 20/ball.speed && ball.crashing==false)
+        else if (ball.flightCounter > ball.crashTime + 20/(ball.speed*100) && ball.crashing==false)
         {
         	console.trace("Crash SHould Be", ball.flightCounter,  ball.crashTime)
         	comboHits = 0

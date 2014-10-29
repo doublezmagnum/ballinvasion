@@ -189,7 +189,7 @@ var update = function (modifier)
 		if (Math.random() < spawnLimit && gameOver == false)
 		{
 			var ball = new Ball();
-			ball.spawn(ballSpeed+5000*spawnLimit);
+			ball.spawn(ballSpeed+25*spawnLimit);
 			spawnLimit += 0.0005
 		}
 		if(fighterBar <= fighterBarMax)
@@ -268,7 +268,7 @@ var render = function (deltaTime)
 	
 	var wind = 0.05*Math.random()+0.5+0.05*Math.sin(0.01*d)-0.03*center.radius+0.2
 	//console.trace(wind)
-	ctx.fillStyle = 'rgba('+String(255)+','+String(255)+','+String(255)+','+String(wind)+')';
+	ctx.fillStyle = 'rgba('+String(a)+','+String(b)+','+String(c)+','+String(wind)+')';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 	screenColorChanger();
@@ -469,9 +469,12 @@ function drawWaste()
 {
 	wasteArray.forEach(function(wasteBall)
 	{
-		wasteBall.flightCounter += wasteBall.flightCounterSpeed*0.01;
-		wasteBall.x = wasteBall.startX + wasteBall.vector[0] * wasteBall.flightCounter;
-		wasteBall.y = wasteBall.startY - wasteBall.vector[1] * wasteBall.flightCounter;
+		//wasteBall.flightCounter += wasteBall.flightCounterSpeed*0.01;
+		/*wasteBall.x = wasteBall.startX + wasteBall.vector[0] * wasteBall.flightCounter;
+		wasteBall.y = wasteBall.startY - wasteBall.vector[1] * wasteBall.flightCounter;*/
+
+		wasteBall.x += wasteBall.vector[0]
+		wasteBall.y += wasteBall.vector[1]
 
 		if (wasteBall.testCollision(center) == true)
 		{

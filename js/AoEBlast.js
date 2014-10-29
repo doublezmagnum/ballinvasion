@@ -8,7 +8,7 @@ function AoEBlast()
 			blastSound.play()
 		}
 		
-		this.maxBlastRadius = 200
+		this.maxBlastRadius = 300
 		this.color = "white"
 		this.radius = center.radius;
 		this.x = center.x;
@@ -48,7 +48,18 @@ function AoEBlast()
 				{
 					var a = Math.atan2(dy, dx)
 					waste.vector[0]+= 0.3*Math.cos(a)
-					waste.vector[1]+= 0.3*Math.sin(a)
+					waste.vector[1]-= 0.3*Math.sin(a)
+				}
+			}
+			for (var u = 0; u < turnedArray.length; u++)
+			{
+				var turned = turnedArray[u]
+				var dx = turned.x - center.x
+				var dy = center.y - turned.y
+				var distance = Math.sqrt(dx * dx + dy * dy)
+				if (distance <= blast.radius)
+				{
+					turned.orbitRadius += 10
 				}
 			}
 		}
@@ -61,7 +72,7 @@ function AoEBlast()
 
 	this.drawBlast = function()
 	{
-		var al = 0.7-0.003*this.radius
+		var al = 0.7-0.7*this.radius/this.maxBlastRadius
 		console.trace(al)
 		ctx.fillStyle = "rgba(255, 0, 0,"+String(al)+")";
         ctx.beginPath();

@@ -49,7 +49,7 @@ function Center()
         for (var bk = 0; bk < ballArray.length; bk++)
 		{
 			var ballo = ballArray[bk]
-			ballo.crashTime = ballo.crashTime-radiusChange/ballo.speed
+			ballo.crashTime = ballo.crashTime-radiusChange/(ballo.speed*100)
 			console.trace(ballo.crashTime)
 		}
 
