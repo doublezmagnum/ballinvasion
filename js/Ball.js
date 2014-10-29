@@ -63,7 +63,7 @@ function Ball()
 		this.destroyed = true;
 		if (muted == false)
 		{
-			var snd = new Audio("sound/Interface1.mp3");
+			var snd = new Audio("sound/Interface1"+soundType);
 			snd.play()
 		}
 		
@@ -75,18 +75,20 @@ function Ball()
 		if (Math.abs(deltaRotation) > 0)
 		{
 			var angleChange = 10*deltaRotation
-			//console.trace("---", angleChange, deltaRotation)
 			angleChange = Math.max(angleChange, -Math.PI/2)
 			angleChange = Math.min(angleChange, Math.PI/2)
-
-			//console.trace(angleChange, deltaRotation)
 			this.crashAngle += angleChange
 		}
 		
 
 		this.circleCounter = 0
-		this.circleSpeed = 1 / (100)
-		this.orbitRadius = Math.min(2*circle.radius + deltaMouse*deltaMouse, canvas.height-300)
+		this.circleSpeed = deltaRotation/Math.abs(deltaRotation) *1 / (100)
+		this.orbitRadius = Math.min(2.5*circle.radius + 2.5*Math.random()*circle.radius + deltaMouse*deltaMouse, canvas.height-300)
+		this.orbitX = Math.cos(this.crashAngle)
+		this.orbitX = Math.max(0.5, this.orbitX)
+
+		this.orbitY = Math.sin(this.crashAngle)
+		this.orbitY = Math.max(0.5, this.orbitY)
 
 		this.expectedToCrash = false
 		this.errorSpeedX = 0
@@ -95,8 +97,8 @@ function Ball()
 
 	this.moveIntoOrbit = function()
 	{
-		var refX = circle.x + this.orbitRadius*Math.cos(this.circleCounter + this.crashAngle)
-		var refY = circle.y + this.orbitRadius*Math.sin(this.circleCounter + this.crashAngle)
+		var refX = circle.x + this.orbitX*this.orbitRadius*Math.cos(this.circleCounter + this.crashAngle)
+		var refY = circle.y + this.orbitY*this.orbitRadius*Math.sin(this.circleCounter + this.crashAngle)
 
 		this.errorSpeedX = refX-this.x
 		this.errorSpeedY = refY-this.y
@@ -145,7 +147,7 @@ function Ball()
 
 				turnedArray.splice(turnedArray.indexOf(this), 1)
 			}
-			ballArray[ballArray.length] = this
+			wasteArray[wasteArray.length] = this
 			this.color = "black"
 			ball2.color = "black"
 		}
@@ -164,6 +166,11 @@ function Ball()
 		ball2.startY = ball2.y
 		ball2.vector[0] = Math.cos(ballResult)
 		ball2.vector[1] = Math.sin(ballResult)
+		if(ballArray.indexOf(ball2)!=1)
+		{
+			ballArray.splice(ballArray.indexOf(ball2),1)
+			wasteArray[wasteArray.length]=ball2
+		}
 		
 	}
 
@@ -192,148 +199,94 @@ function Ball()
 								
 		ball.x = ball.startX + ball.vector[0] * ball.flightCounter;
 		ball.y = ball.startY - ball.vector[1] * ball.flightCounter;
-
-		if (ball.expectedToCrash == false)
-		{
-			if (ball.testCollision(circle) == true)
-			{
-				ball.handleCenterCollision()
-			}
-			//BUUGED AS HELL.
-			/*for (var po =0; po<ballArray.length;po++)
-			{
-				if (ball.testCollision(ballArray[po]) == true)
-				{
-					ball.handleCollision(ballArray[po])
-				}
-			}*/
-		}
          
-        if (ball.flightCounter == Math.round(ball.crashTime) && ball.expectedToCrash == true)
+        if (ball.flightCounter >= Math.round(ball.crashTime) && ball.flightCounter < Math.round(ball.crashTime)+6)
         {
-        	if(ball.crashing == false)
-        	{
-        		var Dangle = Math.abs(ball.crashAngle-pad.rotation)
+        	var Dangle = Math.abs(ball.crashAngle-pad.rotation)
 			
-				if(Dangle > Math.PI) 
-				{
-					Dangle = 2*Math.PI - Dangle
-				}
-				var ComboThen = comboThen
-				var now = survivedSeconds
-	        	if (Dangle < Math.PI/4)
-	        	{
-	        		ball.turn()
+			if(Dangle > Math.PI) 
+			{
+				Dangle = 2*Math.PI - Dangle
+			}				
+			var ComboThen = comboThen
+			var now = survivedSeconds
+	       	if (Dangle < Math.PI/4 + Math.min(Math.PI/6,Math.abs(4*deltaRotation)))
+	        {
+	       		ball.turn()
 	        		
-					if (survivedSeconds-ComboThen <= 1)
-	        		{
-	        			comboThen = now
-	        			
-	        			if (comboStage >= 1)
+				if (survivedSeconds-ComboThen <= 1)
+	       		{
+	       			comboThen = now
+	       			
+	       			if (comboStage >= 1)
+        			{	        				
+        				try
 	        			{
-	        				try
-	        				{
-	        					if (muted == false)
-	        					{
-	        						comboSounds[comboStage-1].play()
-	        					}
-	        					
-	        				}
-	        				catch (e)
-	        				{
-	        					console.trace(comboStage)
-	        				}
-	        			}
-	        			comboStage += 1
-	        			comboHits += 1  
-	        			
-						if(comboStage == 4)
-	        			{
-	        				if(circle.radius <= 50)
-	        				{
-	        					center.handleRadiusChange(comboHits*5)
-	        				}
-	        			}
-	        		}
-	        		else
-	        		{
-	        			comboThen = now
-	        			comboHits = 1
-	        			comboStage = 1
-	        		}
-	        	}
-	        	else
-	        	{
-	        		ball.crashing = true
-	        		ball.crashTime += 5
-	        	}
-        	}
-        	
-        	else
-        	{
-        		if (now-ComboThen <= 1)
-        		{
-        			
+        				if (muted == false)
+       					{
+        						comboSounds[comboStage-1].play()
+        					}
+        					
+        				}
+        				catch (e)
+        				{
+        					console.trace(comboStage)
+        				}
+        			}
         			comboStage += 1
-
-        			if(comboStage == 4)
+        			comboHits += 1  
+        			
+					if(comboStage == 4)
         			{
-        				if(circle.radius <= 200)
+        				if(circle.radius <= 50)
         				{
         					center.handleRadiusChange(comboHits*5)
         				}
         			}
-
-        			if (comboStage-comboHits == 2)
-	        		{
-	        			comboStage = 0
-	        			comboHits = 0
-	        		}
         		}
         		else
         		{
-        			comboHits = 0
-        			comboStage = 0
+        			comboThen = now
+        			comboHits = 1
+        			comboStage = 1
         		}
-
-	        	center.handleRadiusChange(-5)
-	        	if (muted == false)
-	        	{
-	   				//var haakon = new Audio("sound/LoseHealth.wav");
-					// haakon.play()
-	        	}
-	        	
-	        	for (var wk = 0; wk < turnedArray.length; wk++)
-        		{
-        			turnedArray[wk].orbitRadius -= 5
-        		}
-        		for (var bk = 0; bk < ballArray.length; bk++)
-        		{
-        			ballArray[bk].crashTime += 3
-        		}
-	        	ballArray.splice(ballArray.indexOf(ball),1)
-	        	pad.draw()
-
-	        	if (circle.radius <= 0)
-	        	{
-	        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
-					//meOverFunction(Math.floor((Date.now()-startTime)/1000));
-
-					gameOver = true
-	        		ballArray = []
-	        		aoeArray = []
-	        		turnedArray = []
-	        		shotArray = []
-	        		fighterArray = []
-	        		center.x = 4000
-	        		center.y = 4000
-	        		circle.x = 4000
-	        		circle.y = 4000
-	        		circle.radius = 200
-	        		pad.x = 4000
-	        		pad.y = 4000
-	        	}
         	}
+       	}
+ 
+        else if (ball.flightCounter > Math.round(ball.crashTime) + 15 && ball.crashing==false)
+        {
+        	comboHits = 0
+        	comboStage = 0
+        	console.trace("Decreasing radius")
+        	ball.crashing=true
+        	center.handleRadiusChange(-5)
+        	if (muted == false)
+        	{
+   				var haakon = new Audio("sound/LoseHealth"+soundType);
+				haakon.play()
+        	}
+        	
+        	ballArray.splice(ballArray.indexOf(ball),1)
+        	pad.draw()
+
+        	if (circle.radius <= 0)
+        	{
+        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
+				//meOverFunction(Math.floor((Date.now()-startTime)/1000));
+				gameOver = true
+	       		ballArray = []
+        		aoeArray = []
+	       		turnedArray = []
+	       		shotArray = []
+	       		fighterArray = []
+	       		center.x = 4000
+	       		center.y = 4000
+	       		circle.x = 4000
+	       		circle.y = 4000
+	       		circle.radius = 200
+	       		pad.x = 4000
+	       		pad.y = 4000
+	       	}
         }
 	}
 
