@@ -36,6 +36,7 @@ function AoEBlast()
 				if (distance <= blast.radius)
 				{
 					ballArray.splice(b, 1)
+					wasteArray[wasteArray.length] = ball5
 				}
 			}
 			for (var t = 0; t < wasteArray.length; t++)
