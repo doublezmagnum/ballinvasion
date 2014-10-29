@@ -75,16 +75,18 @@ function Center()
 	       		document.getElementById("score").value = survivedSeconds
 	       	}
 
-		/*for (var wk = 0; wk < wasteArray.length; wk++)
+		for (var wk = 0; wk < wasteArray.length; wk++)
 		{
-			var wasted = wasteArray[wk]
-			if ((wasted.x-this.x)*(wasted.x-this.x)+(wasted.y-this.y)*(wasted.y-this.y) < (wasted.radius+this.radius)*(wasted.radius+this.radius))
+			var waste = wasteArray[wk]
+			var dx = waste.x - center.x
+			var dy = center.y - waste.y
+			var distance = dx * dx + dy * dy
+			if (distance < (waste.radius+this.radius)*(waste.radius+this.radius))
 			{
-				if (wasteArray.indexOf(wasted) != -1)
-				{
-					wasteArray.splice(wasteArray.indexOf(wasted),1)
-				}
+				var a = Math.atan2(dy, dx)
+				waste.vector[0]+= 0.3*Math.cos(a)
+				waste.vector[1]-= 0.3*Math.sin(a)
 			}
-		}*/
+		}
 	}
 }
