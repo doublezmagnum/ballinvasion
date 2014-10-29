@@ -49,7 +49,7 @@ function stopEvent(event){
  if(event.stopPropagation != undefined)
   event.stopPropagation();
 }*/
-
+var submittedScore = false
 document.getElementById("playagainbtn").addEventListener("click", function (e) 
 {
 	location.reload();
@@ -58,7 +58,11 @@ document.getElementById("playagainbtn").addEventListener("click", function (e)
 
 document.getElementById("save").addEventListener("click", function (e) 
 {
-	submitscore(document.getElementById("namefield").value, survivedSeconds);
+	if (submittedScore == false)
+	{
+		submitscore(document.getElementById("namefield").value, survivedSeconds);
+		submittedScore = true
+	}
 }, false);
 
 navigator.sayswho= (function(){
