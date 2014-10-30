@@ -1,0 +1,77 @@
+.flag{
+	margin:auto;
+	margin-top:300px;
+	width:350px;
+	height:200px;
+	background-color:#000;
+	border:1px solid #afafaf;
+}
+.bg_color{
+	background-color: #ef2b2d;
+	width:350px;
+	height:200px;
+	position: absolute;
+	transition: ease-in-out 2s;
+}
+.vbar1{
+	background-color:#fff;
+	width:60px;
+	height:200px;
+	margin-left:70px;
+	position: absolute;
+	transition: ease-in-out 0.3s;
+}
+.hbar1{
+	background-color:#fff;
+	width:350px;
+	height:60px;
+	position: absolute;
+	margin-top:70px;
+	transition: ease-in-out 2s;
+}
+.vbar2{
+	background-color:#002868;
+	width:30px;
+	height:200px;
+	margin-left:85px;
+	position: absolute;
+	transition: ease-in-out 0.3s;
+}
+.hbar2{
+	background-color:#002868;
+	width:350px;
+	height:30px;
+	position: absolute;
+	margin-top:85px;
+	transition: ease-in-out 2s;
+}
+
+.flag:hover .bg_color{
+	background-color:#000;
+	transition: ease-in-out 2s;
+}
+
+.flag:hover .hbar1{
+	background-color:#dd0000;
+	width:350px;
+	height:67px;
+	margin-top:66px;
+	transition: ease-in-out 2s;
+}
+
+.flag:hover .hbar2{
+	background-color:#ffce00;
+	width:350px;
+	height:67px;
+	margin-top:133px;
+	transition: ease-in-out 2s;
+}
+
+.flag:hover .vbar1{
+	opacity:0.0;
+	transition: ease-in-out 0.3s;
+}
+.flag:hover .vbar2{
+	opacity:0.0;
+	transition: ease-in-out 0.3s;
+}

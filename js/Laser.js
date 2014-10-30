@@ -5,7 +5,8 @@ function Laser()
 	this.spawn = function(angleError)
 	{
 		center.reloading = true
-		center.redCounter = Math.min(center.redCounter + 40, 255)
+		center.redCounter = Math.min(center.redCounter + redLimit, 255)
+		center.gunCounter = Math.min(center.gunCounter + gunLimit, 255)
 		this.flightCounter = 0
 		this.speed = 15
 
@@ -46,17 +47,17 @@ function Laser()
 		}
 	}
 
-	this.updateLaser = function(laser)
+	this.updateLaser = function(modifier)
 	{
-		laser.flightCounter += 1;
+		this.flightCounter += 1;
 						
-		laser.x = laser.startX + laser.vector[0] * laser.flightCounter;
-		laser.y = laser.startY - laser.vector[1] * laser.flightCounter;
+		this.x = this.startX + this.vector[0] * this.flightCounter;
+		this.y = this.startY - this.vector[1] * this.flightCounter;
 
 		for (var y = 0; y < ballArray.length; y++)
 		{
 			var ball3 = ballArray[y]
-			if (laser.testCollision(ball3))
+			if (this.testCollision(ball3))
 			{
 				ballArray.splice(y, 1)
 			}

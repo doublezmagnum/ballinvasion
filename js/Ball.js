@@ -1,3 +1,6 @@
+var ballSpeed = 2
+var spawnDistance = 700
+
 function Ball() 
 {
 	this.spawn = function(speed)
@@ -17,19 +20,20 @@ function Ball()
 		}
 		else
 		{
-			this.x = circle.x + 700*Math.cos(rNumber* 2 * Math.PI)
-	 		this.y = circle.y + 700*Math.sin(rNumber * 2 * Math.PI)
+			this.x = center.x + spawnDistance*Math.cos(rNumber* 2 * Math.PI)
+	 		this.y = center.y + spawnDistance*Math.sin(rNumber * 2 * Math.PI)
 		}
 		
 	 	this.spawnX = this.x
 	 	this.spawnY = this.y
 	 	this.speed = speed
 	    ballArray[ballArray.length] = this
-		this.giveDirection((circle.x), (circle.y), true)
+		this.giveDirection((center.x), (center.y), true)
 	}
 
 	this.giveDirection = function(toX, toY, expectedToCrash)
 	{
+		this.flightCounterSpeed = 1
 		this.flightCounter = 0;
 		this.expectedToCrash = expectedToCrash
 	 	this.startX = this.x
@@ -46,11 +50,13 @@ function Ball()
 
 		if (expectedToCrash == true)
 		{
-			var circleHit = circle.radius + 10
-			var sx = this.x - circle.x
-		   	var sy = circle.y  - this.y
+			var circleHit = center.radius + 10
+			var sx = this.x - center.x
+		   	var sy = center.y  - this.y
 		   	
-			this.crashTime = -(Math.sqrt(-4*(this.vector[0]*this.vector[0]+this.vector[1]*this.vector[1])*(-(this.radius + circleHit)*(this.radius + circleHit)+sx*sx+sy*sy) + (2*sx*this.vector[0]+2*sy*this.vector[1])*(2*sx*this.vector[0]+2*sy*this.vector[1]))+2*sx*this.vector[0]+2*sy*this.vector[1])/(2*this.vector[0]*this.vector[0]+2*this.vector[1]*this.vector[1])
+			//this.crashTime = -(Math.sqrt(-4*(this.vector[0]*this.vector[0]+this.vector[1]*this.vector[1])*(-(this.radius + circleHit)*(this.radius + circleHit)+sx*sx+sy*sy) + (2*sx*this.vector[0]+2*sy*this.vector[1])*(2*sx*this.vector[0]+2*sy*this.vector[1]))+2*sx*this.vector[0]+2*sy*this.vector[1])/(2*this.vector[0]*this.vector[0]+2*this.vector[1]*this.vector[1])
+			//this.crashTime = Number(this.crashTime.toFixed(2))
+			this.crashTime = (spawnDistance-center.radius-this.radius-10)/(this.speed*100)
 			var distance = Math.sqrt(dx * dx + dy * dy)
 
 			this.crashAngle = -Math.atan2(dy, dx)
@@ -63,7 +69,7 @@ function Ball()
 		this.destroyed = true;
 		if (muted == false)
 		{
-			var snd = new Audio("sound/Interface1.mp3");
+			var snd = new Audio("sound/Interface1"+soundType);
 			snd.play()
 		}
 		
@@ -75,18 +81,22 @@ function Ball()
 		if (Math.abs(deltaRotation) > 0)
 		{
 			var angleChange = 10*deltaRotation
-			//console.trace("---", angleChange, deltaRotation)
-			angleChange = Math.max(angleChange, -Math.PI/2)
-			angleChange = Math.min(angleChange, Math.PI/2)
-
-			//console.trace(angleChange, deltaRotation)
+			angleChange = Math.max(angleChange, -Math.PI/3)
+			angleChange = Math.min(angleChange, Math.PI/3)
 			this.crashAngle += angleChange
 		}
 		
 
 		this.circleCounter = 0
-		this.circleSpeed = 1 / (100)
-		this.orbitRadius = Math.min(2*circle.radius + deltaMouse*deltaMouse, canvas.height-300)
+		
+		this.orbitRadius = Math.min(3*center.radius + 3*Math.random()*center.radius + 0.5*deltaMouse*deltaMouse, 0.4*canvas.height)
+		console.trace(this.orbitRadius)
+		this.circleSpeed = 100000/Math.pow(this.orbitRadius,3)
+		/*this.orbitX = Math.cos(this.crashAngle)
+		this.orbitX = Math.max(0.5, this.orbitX)
+
+		this.orbitY = Math.sin(this.crashAngle)
+		this.orbitY = Math.max(0.5, this.orbitY)*/
 
 		this.expectedToCrash = false
 		this.errorSpeedX = 0
@@ -95,8 +105,8 @@ function Ball()
 
 	this.moveIntoOrbit = function()
 	{
-		var refX = circle.x + this.orbitRadius*Math.cos(this.circleCounter + this.crashAngle)
-		var refY = circle.y + this.orbitRadius*Math.sin(this.circleCounter + this.crashAngle)
+		var refX = center.x + this.orbitRadius*Math.cos(this.circleCounter + this.crashAngle)
+		var refY = center.y + this.orbitRadius*Math.sin(this.circleCounter + this.crashAngle)
 
 		this.errorSpeedX = refX-this.x
 		this.errorSpeedY = refY-this.y
@@ -145,13 +155,13 @@ function Ball()
 
 				turnedArray.splice(turnedArray.indexOf(this), 1)
 			}
-			ballArray[ballArray.length] = this
+			wasteArray[wasteArray.length] = this
 			this.color = "black"
 			ball2.color = "black"
 		}
 		
 		this.flightCounter = 0
-		this.crashTime = 500	
+		this.crashTime = 5	
 		this.startX = this.x
 		this.startY = this.y
 		this.vector[0] = Math.cos(thisResult)
@@ -164,14 +174,18 @@ function Ball()
 		ball2.startY = ball2.y
 		ball2.vector[0] = Math.cos(ballResult)
 		ball2.vector[1] = Math.sin(ballResult)
-		
+		if(ballArray.indexOf(ball2)!=-1)
+		{
+			ballArray.splice(ballArray.indexOf(ball2),1)
+			wasteArray[wasteArray.length]=ball2
+		}
 	}
 
 	this.handleCenterCollision = function()
 	{
 		//console.trace("Black Ball Center Collision")
-		var dx = circle.x-this.x
-		var dy = this.y-circle.y
+		var dx = center.x-this.x
+		var dy = center.y-this.y
 		
 		var distanceAngle = Math.atan2(dy, dx)
 		var normalAngle = distanceAngle - Math.PI/2
@@ -188,153 +202,84 @@ function Ball()
 
 	this.updateBall = function(ball)
 	{
-		ball.flightCounter += 1;
+		ball.flightCounter += 0.01;
 								
-		ball.x = ball.startX + ball.vector[0] * ball.flightCounter;
-		ball.y = ball.startY - ball.vector[1] * ball.flightCounter;
-
-		if (ball.expectedToCrash == false)
-		{
-			if (ball.testCollision(circle) == true)
-			{
-				ball.handleCenterCollision()
-			}
-			//BUUGED AS HELL.
-			/*for (var po =0; po<ballArray.length;po++)
-			{
-				if (ball.testCollision(ballArray[po]) == true)
-				{
-					ball.handleCollision(ballArray[po])
-				}
-			}*/
-		}
+		ball.x+=ball.vector[0]
+		ball.y-=ball.vector[1]
+		/*ball.x = ball.startX + ball.vector[0] * ball.flightCounter;
+		ball.y = ball.startY - ball.vector[1] * ball.flightCounter;*/
          
-        if (ball.flightCounter == Math.round(ball.crashTime) && ball.expectedToCrash == true)
+        if (ball.flightCounter >= ball.crashTime && ball.flightCounter < ball.crashTime +8/(ball.speed*100))
         {
-        	if(ball.crashing == false)
-        	{
-        		var Dangle = Math.abs(ball.crashAngle-pad.rotation)
-			
-				if(Dangle > Math.PI) 
-				{
-					Dangle = 2*Math.PI - Dangle
-				}
-				var ComboThen = comboThen
-				var now = survivedSeconds
-	        	if (Dangle < Math.PI/4)
-	        	{
-	        		ball.turn()
+        	var Dangle = Math.abs(ball.crashAngle-pad.rotation)
+			 
+			if(Dangle > Math.PI) 
+			{
+				Dangle = 2*Math.PI - Dangle
+			}				
+			var ComboThen = comboThen
+			var now = survivedSeconds
+	       	if (Dangle < Math.PI/4 + Math.min(Math.PI/6,Math.abs(4*deltaRotation)))
+	        {
+	       		ball.turn()
 	        		
-					if (survivedSeconds-ComboThen <= 1)
-	        		{
-	        			comboThen = now
-	        			
-	        			if (comboStage >= 1)
+				if (survivedSeconds-ComboThen <= 1)
+	       		{
+	       			comboThen = now
+	       			
+	       			if (comboStage >= 1)
+        			{	        				
+        				try
 	        			{
-	        				try
-	        				{
-	        					if (muted == false)
-	        					{
-	        						comboSounds[comboStage-1].play()
-	        					}
-	        					
-	        				}
-	        				catch (e)
-	        				{
-	        					console.trace(comboStage)
-	        				}
-	        			}
-	        			comboStage += 1
-	        			comboHits += 1  
-	        			
-						if(comboStage == 4)
-	        			{
-	        				if(circle.radius <= 50)
-	        				{
-	        					center.handleRadiusChange(comboHits*5)
-	        				}
-	        			}
-	        		}
-	        		else
-	        		{
-	        			comboThen = now
-	        			comboHits = 1
-	        			comboStage = 1
-	        		}
-	        	}
-	        	else
-	        	{
-	        		ball.crashing = true
-	        		ball.crashTime += 5
-	        	}
-        	}
-        	
-        	else
-        	{
-        		if (now-ComboThen <= 1)
-        		{
-        			
+        				if (muted == false)
+       					{
+        						comboSounds[comboStage-1].play()
+        					}
+        					
+        				}
+        				catch (e)
+        				{
+        					console.trace("-")
+        				}
+        			}
         			comboStage += 1
-
-        			if(comboStage == 4)
+        			comboHits += 1  
+        			
+					if(comboStage == 4)
         			{
-        				if(circle.radius <= 200)
+        				if(center.radius <= 50)
         				{
         					center.handleRadiusChange(comboHits*5)
         				}
         			}
-
-        			if (comboStage-comboHits == 2)
-	        		{
-	        			comboStage = 0
-	        			comboHits = 0
-	        		}
         		}
         		else
         		{
-        			comboHits = 0
-        			comboStage = 0
+        			comboThen = now
+        			comboHits = 1
+        			comboStage = 1
         		}
-
-	        	center.handleRadiusChange(-5)
-	        	if (muted == false)
-	        	{
-	   				//var haakon = new Audio("sound/LoseHealth.wav");
-					// haakon.play()
-	        	}
-	        	
-	        	for (var wk = 0; wk < turnedArray.length; wk++)
-        		{
-        			turnedArray[wk].orbitRadius -= 5
-        		}
-        		for (var bk = 0; bk < ballArray.length; bk++)
-        		{
-        			ballArray[bk].crashTime += 3
-        		}
-	        	ballArray.splice(ballArray.indexOf(ball),1)
-	        	pad.draw()
-
-	        	if (circle.radius <= 0)
-	        	{
-	        		survivedSeconds = String(Math.floor((Date.now()-startTime)/1000))
-					//meOverFunction(Math.floor((Date.now()-startTime)/1000));
-
-					gameOver = true
-	        		ballArray = []
-	        		aoeArray = []
-	        		turnedArray = []
-	        		shotArray = []
-	        		fighterArray = []
-	        		center.x = 4000
-	        		center.y = 4000
-	        		circle.x = 4000
-	        		circle.y = 4000
-	        		circle.radius = 200
-	        		pad.x = 4000
-	        		pad.y = 4000
-	        	}
         	}
+       	}
+ 		
+        else if (ball.flightCounter > ball.crashTime + 20/(ball.speed*100) && ball.crashing==false)
+        {
+        	center.redCounter = Math.min(center.redCounter+30, 255)
+        	comboHits = 0
+        	comboStage = 0
+        	
+        	ball.crashing=true
+        	center.handleRadiusChange(-5)
+        	if (muted == false)
+        	{
+   				var haakon = new Audio("sound/LoseHealth"+soundType);
+				haakon.play()
+        	}
+        	
+        	ballArray.splice(ballArray.indexOf(ball),1)
+        	pad.draw()
         }
+        //console.trace(ball.flightCounter, ball.crashTime, ball.speed, ball.crashing)
 	}
 
  	this.draw = function() 

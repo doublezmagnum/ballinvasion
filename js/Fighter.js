@@ -24,16 +24,16 @@ function Fighter()
 		this.absvector = 0;
 		this.radius = 5;
 
-		var dx = -circle.x + mouseX
-	   	var dy = circle.y - mouseY
+		var dx = -center.x + mouseX
+	   	var dy = center.y - mouseY
 	   	var distance = Math.sqrt(dy*dy+dx*dx)
 
 	   	this.rotation = -Math.atan2(dy, dx) + (Math.PI/2)
 
 		this.vector = [this.speed * Math.cos(-Math.atan2(dy, dx)), this.speed * Math.sin(-Math.atan2(dy, dx))];
 
-		this.x = circle.x + circle.radius * Math.cos(this.rotation-Math.PI/2)
-		this.y = circle.y + circle.radius * Math.sin(this.rotation-Math.PI/2)
+		this.x = center.x + center.radius * Math.cos(this.rotation-Math.PI/2)
+		this.y = center.y + center.radius * Math.sin(this.rotation-Math.PI/2)
 			
 		this.rotAks = 0.02;
 		this.degrees = 0;
@@ -42,26 +42,26 @@ function Fighter()
 
 	};	
 
-	this.updateFighter = function(fighter)
+	this.updateFighter = function(modifier)
 	{
-		if (fighter.leaving == false)
+		if (this.leaving == false)
 		{
-			if (fighter.hunting == true && fighter.ready == true)
+			if (this.hunting == true && this.ready == true)
 			{
-				fighter.calculateRoute(fighter.Target);
+				this.calculateRoute(this.Target, modifier);
 			}
 			else 
 			{
-				fighter.searchForTarget();
+				this.searchForTarget(modifier);
 			}
 		}
 		else
 		{
-			fighter.disAppear()
+			this.disAppear()
 		}	
 	}
 
-	this.calculateRoute = function(target)
+	this.calculateRoute = function(target, modifier)
 	{
 		this.Target = target
 
@@ -99,7 +99,7 @@ function Fighter()
 			{
 				if (muted == false)
 				{
-					var haakon2 = new Audio("sound/InterFace2.mp3");
+					var haakon2 = new Audio("sound/InterFace2"+soundType);
 					haakon2.play()
 				}
 				
@@ -117,15 +117,15 @@ function Fighter()
 			this.leaving = true
 			this.flightCounter = 0
 
-			var dx = -circle.x + mouseX
-	   		var dy = circle.y - mouseY
+			var dx = -center.x + mouseX
+	   		var dy = center.y - mouseY
 			
 			this.degrees = Math.atan2(dy, dx);
 		}
 	};	
 
 
-	this.searchForTarget = function()
+	this.searchForTarget = function(modifier)
 	{
 		this.vector[0] = this.vector[0]*0.99
 		this.vector[1] = this.vector[1]*0.99
@@ -159,8 +159,8 @@ function Fighter()
 			this.leaving = true
 			this.flightCounter = 0
 
-			var dx = -circle.x + mouseX
-	   		var dy = circle.y - mouseY
+			var dx = -center.x + mouseX
+	   		var dy = center.y - mouseY
 			
 			this.degrees = Math.atan2(dy, dx);
 		}

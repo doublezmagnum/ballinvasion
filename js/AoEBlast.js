@@ -4,15 +4,15 @@ function AoEBlast()
 	{
 		if (muted == false)
 		{
-			var blastSound = new Audio('sound/Mail1.mp3')
+			var blastSound = new Audio('sound/Mail1'+soundType)
 			blastSound.play()
 		}
 		
-		this.maxBlastRadius = 200
+		this.maxBlastRadius = 300
 		this.color = "white"
-		this.radius = circle.radius;
-		this.x = circle.x;
-		this.y = circle.y;
+		this.radius = center.radius;
+		this.x = center.x;
+		this.y = center.y;
 		this.blastSpeed = 10
 
 		center.reloading = true
@@ -21,34 +21,61 @@ function AoEBlast()
 		aoeArray[aoeArray.length] = this	
 	};	
 
-	this.updateBlast = function(blast)
+	this.updateBlast = function(modifier)
 	{
-		if(blast.radius < blast.maxBlastRadius)
+		if(this.radius < this.maxBlastRadius)
 		{
-			blast.radius += blast.blastSpeed
+			this.radius += this.blastSpeed
 
 			for (var b = 0; b < ballArray.length; b++)
 			{
 				var ball5 = ballArray[b]
-				var dx = ball5.x -circle.x
-				var dy = ball5.y - circle.y
+				var dx = ball5.x -center.x
+				var dy = ball5.y - center.y
 				var distance = Math.sqrt(dx * dx + dy * dy)
-				if (distance <= blast.radius)
+				if (distance <= this.radius)
 				{
 					ballArray.splice(b, 1)
+					wasteArray[wasteArray.length] = ball5
+				}
+			}
+			for (var t = 0; t < wasteArray.length; t++)
+			{
+				var waste = wasteArray[t]
+				var dx = waste.x - center.x
+				var dy = center.y - waste.y
+				var distance = Math.sqrt(dx * dx + dy * dy)
+				if (distance <= this.radius)
+				{
+					var a = Math.atan2(dy, dx)
+					waste.vector[0]+= 0.3*Math.cos(a)
+					waste.vector[1]-= 0.3*Math.sin(a)
+				}
+			}
+			for (var u = 0; u < turnedArray.length; u++)
+			{
+				var turned = turnedArray[u]
+				var dx = turned.x - center.x
+				var dy = center.y - turned.y
+				var distance = Math.sqrt(dx * dx + dy * dy)
+				if (distance <= this.radius)
+				{
+					turned.orbitRadius += 20
+					turned.circleSpeed += 0.01
 				}
 			}
 		}
 		else
 		{
 			
-			aoeArray.splice(aoeArray.indexOf(blast), 1)
+			aoeArray.splice(aoeArray.indexOf(this), 1)
 		}
 	}
 
 	this.drawBlast = function()
 	{
-		ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+		var al = 0.7-0.7*this.radius/this.maxBlastRadius
+		ctx.fillStyle = "rgba(255, 0, 0,"+String(al)+")";
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
         ctx.fill();

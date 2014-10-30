@@ -17,33 +17,33 @@ function Shot()
 		shotArray[shotArray.length] = this
 	};	
 
-	this.updateShot = function(shot)
+	this.updateShot = function(modifier)
 	{
-		shot.x += shot.speed * shot.xDif;
-		shot.y += shot.speed * shot.yDif;
-		if (shot.Target != false)
+		this.x += this.speed * this.xDif;
+		this.y += this.speed * this.yDif;
+		if (this.Target != false)
 		{
-			if (Math.sqrt((shot.Target.x-shot.x)*(shot.Target.x-shot.x)+(shot.y-shot.Target.y)*(shot.y-shot.Target.y)) < shot.parentPlane.sideLength + shot.Target.radius)
+			if (Math.sqrt((this.Target.x-this.x)*(this.Target.x-this.x)+(this.y-this.Target.y)*(this.y-this.Target.y)) < this.parentPlane.sideLength + this.Target.radius)
 			{
 				try
 				{
-					shot.parentPlane.hunting = false;
-					shot.parentPlane.speed = shot.parentPlane.slowspeed;
+					this.parentPlane.hunting = false;
+					this.parentPlane.speed = this.parentPlane.slowspeed;
 				}
 				catch (e)
 				{
 					trace("nf error");
 				}
 				
-				if (shot.Target.destroyed == false)
+				if (this.Target.destroyed == false)
 				{
-					shot.Target.destroyed = true
-					if (ballArray.indexOf(shot.Target) != -1)
+					this.Target.destroyed = true
+					if (ballArray.indexOf(this.Target) != -1)
 					{
-						ballArray.splice(ballArray.indexOf(shot.Target), 1);
+						ballArray.splice(ballArray.indexOf(this.Target), 1);
 					}
-					shotArray.splice(shotArray.indexOf(shot), 1)
-					shot.parentPlane = false;
+					shotArray.splice(shotArray.indexOf(this), 1)
+					this.parentPlane = false;
 				}
 			}			
 		}
@@ -52,7 +52,7 @@ function Shot()
 			for (var iu = 0; iu < ballArray.length; iu++)
 			{
 				var balll = ballArray[iu]
-				if (Math.sqrt((balll.x-shot.x)*(balll.x-shot.x)+(shot.y-balll.y)*(shot.y-balll.y)) < 14 + balll.radius) // need crash radius constant
+				if (Math.sqrt((balll.x-this.x)*(balll.x-this.x)+(this.y-balll.y)*(this.y-balll.y)) < 14 + balll.radius) // need crash radius constant
 				{
 					if (balll.destroyed == false)
 					{
@@ -61,8 +61,8 @@ function Shot()
 						{
 							ballArray.splice(ballArray.indexOf(balll), 1);
 						}
-						shotArray.splice(shotArray.indexOf(shot), 1)
-						shot.parentPlane = false;
+						shotArray.splice(shotArray.indexOf(this), 1)
+						this.parentPlane = false;
 					}
 				}
 			}	
