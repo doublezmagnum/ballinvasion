@@ -21,11 +21,11 @@ function AoEBlast()
 		aoeArray[aoeArray.length] = this	
 	};	
 
-	this.updateBlast = function(blast)
+	this.updateBlast = function(modifier)
 	{
-		if(blast.radius < blast.maxBlastRadius)
+		if(this.radius < this.maxBlastRadius)
 		{
-			blast.radius += blast.blastSpeed
+			this.radius += this.blastSpeed
 
 			for (var b = 0; b < ballArray.length; b++)
 			{
@@ -33,7 +33,7 @@ function AoEBlast()
 				var dx = ball5.x -center.x
 				var dy = ball5.y - center.y
 				var distance = Math.sqrt(dx * dx + dy * dy)
-				if (distance <= blast.radius)
+				if (distance <= this.radius)
 				{
 					ballArray.splice(b, 1)
 					wasteArray[wasteArray.length] = ball5
@@ -45,7 +45,7 @@ function AoEBlast()
 				var dx = waste.x - center.x
 				var dy = center.y - waste.y
 				var distance = Math.sqrt(dx * dx + dy * dy)
-				if (distance <= blast.radius)
+				if (distance <= this.radius)
 				{
 					var a = Math.atan2(dy, dx)
 					waste.vector[0]+= 0.3*Math.cos(a)
@@ -58,23 +58,23 @@ function AoEBlast()
 				var dx = turned.x - center.x
 				var dy = center.y - turned.y
 				var distance = Math.sqrt(dx * dx + dy * dy)
-				if (distance <= blast.radius)
+				if (distance <= this.radius)
 				{
-					turned.orbitRadius += 10
+					turned.orbitRadius += 20
+					turned.circleSpeed += 0.01
 				}
 			}
 		}
 		else
 		{
 			
-			aoeArray.splice(aoeArray.indexOf(blast), 1)
+			aoeArray.splice(aoeArray.indexOf(this), 1)
 		}
 	}
 
 	this.drawBlast = function()
 	{
 		var al = 0.7-0.7*this.radius/this.maxBlastRadius
-		console.trace(al)
 		ctx.fillStyle = "rgba(255, 0, 0,"+String(al)+")";
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);

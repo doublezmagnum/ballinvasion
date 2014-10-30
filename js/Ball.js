@@ -88,8 +88,10 @@ function Ball()
 		
 
 		this.circleCounter = 0
-		this.circleSpeed = deltaRotation/Math.abs(deltaRotation) *1 / (100)
-		this.orbitRadius = Math.min(2.5*center.radius + 2.5*Math.random()*center.radius + 0.5*deltaMouse*deltaMouse, canvas.height-356)
+		
+		this.orbitRadius = Math.min(3*center.radius + 3*Math.random()*center.radius + 0.5*deltaMouse*deltaMouse, 0.4*canvas.height)
+		console.trace(this.orbitRadius)
+		this.circleSpeed = 100000/Math.pow(this.orbitRadius,3)
 		/*this.orbitX = Math.cos(this.crashAngle)
 		this.orbitX = Math.max(0.5, this.orbitX)
 
@@ -172,12 +174,11 @@ function Ball()
 		ball2.startY = ball2.y
 		ball2.vector[0] = Math.cos(ballResult)
 		ball2.vector[1] = Math.sin(ballResult)
-		if(ballArray.indexOf(ball2)!=1)
+		if(ballArray.indexOf(ball2)!=-1)
 		{
 			ballArray.splice(ballArray.indexOf(ball2),1)
 			wasteArray[wasteArray.length]=ball2
 		}
-		//console.trace("Collision", this.vector, ball2.vector)
 	}
 
 	this.handleCenterCollision = function()
@@ -211,7 +212,7 @@ function Ball()
         if (ball.flightCounter >= ball.crashTime && ball.flightCounter < ball.crashTime +8/(ball.speed*100))
         {
         	var Dangle = Math.abs(ball.crashAngle-pad.rotation)
-			
+			 
 			if(Dangle > Math.PI) 
 			{
 				Dangle = 2*Math.PI - Dangle
@@ -263,11 +264,10 @@ function Ball()
  		
         else if (ball.flightCounter > ball.crashTime + 20/(ball.speed*100) && ball.crashing==false)
         {
-        	center.redCounter += 100
-        	console.trace("Crash SHould Be", ball.flightCounter,  ball.crashTime)
+        	center.redCounter = Math.min(center.redCounter+30, 255)
         	comboHits = 0
         	comboStage = 0
-        	console.trace("Decreasing radius")
+        	
         	ball.crashing=true
         	center.handleRadiusChange(-5)
         	if (muted == false)

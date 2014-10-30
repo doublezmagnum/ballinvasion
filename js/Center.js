@@ -1,7 +1,11 @@
+gunLimit = 7
+redLimit = 20
 function Center()
 {
 	this.reloading = false
 	this.redCounter = 0
+	this.firing = false
+	this.gunCounter = 0
 	this.changing = false
 	this.radius = 50
 	this.intendedRadius = this.radius
@@ -50,7 +54,7 @@ function Center()
 		{
 			var ballo = ballArray[bk]
 			ballo.crashTime = ballo.crashTime-radiusChange/(ballo.speed*100)
-			console.trace(ballo.crashTime)
+			//console.trace(ballo.crashTime)
 		}
 
 		if (this.radius <= 0)
