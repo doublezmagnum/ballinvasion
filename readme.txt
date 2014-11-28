@@ -1,0 +1,8 @@
+For updates on the development,
+Go to
+
+https://docs.google.com/spreadsheets/d/1xWt61DBaLwcN0L9uRv5lAfi24JwINwUwoMXvSftJp-8/edit?usp=sharing
+
+For current available version:
+Go to
+http://mavg-programmers.github.io

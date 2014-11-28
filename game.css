@@ -1,4 +1,5 @@
 html{
+	font
 	font-family: 'Merriweather', serif;
 }
 
@@ -20,19 +21,13 @@ html{
 }
 #overlay{
 	position:fixed;
-	top:0px;
-	left:0px;
+	top:10%;
+	left:-30%;
 	width:100%;
 	height:100%;
 	/*background-color:rgba(234, 109, 77, 1);*/
+	/* Is someone there? */
 	display:none;
-	background: -moz-radial-gradient(center, ellipse cover, #ff3232 0%, #6fd328 8%, #207cca 20%, #6d7a42 28%, #d883ef 36%, #f4b486 45%, #5e3866 54%, #82e7ed 63%, #6b5fad 75%, #bfb269 87%, #775441 99%); /* FF3.6+ */
-	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#ff3232), color-stop(8%,#6fd328), color-stop(20%,#207cca), color-stop(28%,#6d7a42), color-stop(36%,#d883ef), color-stop(45%,#f4b486), color-stop(54%,#5e3866), color-stop(63%,#82e7ed), color-stop(75%,#6b5fad), color-stop(87%,#bfb269), color-stop(99%,#775441)); /* Chrome,Safari4+ */
-	background: -webkit-radial-gradient(center, ellipse cover, #ff3232 0%,#6fd328 8%,#207cca 20%,#6d7a42 28%,#d883ef 36%,#f4b486 45%,#5e3866 54%,#82e7ed 63%,#6b5fad 75%,#bfb269 87%,#775441 99%); /* Chrome10+,Safari5.1+ */
-	background: -o-radial-gradient(center, ellipse cover, #ff3232 0%,#6fd328 8%,#207cca 20%,#6d7a42 28%,#d883ef 36%,#f4b486 45%,#5e3866 54%,#82e7ed 63%,#6b5fad 75%,#bfb269 87%,#775441 99%); /* Opera 12+ */
-	background: -ms-radial-gradient(center, ellipse cover, #ff3232 0%,#6fd328 8%,#207cca 20%,#6d7a42 28%,#d883ef 36%,#f4b486 45%,#5e3866 54%,#82e7ed 63%,#6b5fad 75%,#bfb269 87%,#775441 99%); /* IE10+ */
-	background: radial-gradient(ellipse at center, #ff3232 0%,#6fd328 8%,#207cca 20%,#6d7a42 28%,#d883ef 36%,#f4b486 45%,#5e3866 54%,#82e7ed 63%,#6b5fad 75%,#bfb269 87%,#775441 99%); /* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3232', endColorstr='#775441',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
 #score{
 	font-weight:bold;
@@ -64,6 +59,7 @@ html{
 	font-size:2em;
 	padding:20px;
 	border-radius:7px;
+	text-decoration: none;
 }
 #save:hover{
 	background-color:#87D170;
@@ -82,4 +78,20 @@ html{
 #playagainbtn:hover{
 	background-color:#87D170;
 	cursor:pointer;
+}
+
+
+#highscoreoverlay{
+	position:absolute;
+	top:0px;
+	left:0px;
+	display:block;
+	min-width:100%;
+	min-height:100%;
+	background-color:#fff;
+}
+
+#iframe{
+	min-width:100%;
+	min-height:100%;
 }

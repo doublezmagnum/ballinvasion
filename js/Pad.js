@@ -1,11 +1,29 @@
+var padLength = Math.PI
 function Pad()
 {
+	this.x = center.x
+	this.y = center.y
+	this.padWidth = 10
+	this.rotation = 0
+	this.deltaRotation = 0
 	this.draw = function()
 	{
-		ctx.strokeStyle = "#0000ff";
 		ctx.beginPath();
-      	ctx.arc(pad.x, pad.y, center.radius+5, pad.visualRotation - Math.PI/4, pad.visualRotation + Math.PI/4, false);
-      	ctx.lineWidth = 10
-		ctx.stroke();
+		if (powerUps["biggerpaddle"] > 0)
+		{
+			this.padLength = padLength
+			ctx.arc(this.x, this.y, center.radius+this.padWidth*0.5, this.rotation-0.5*this.padLength, this.rotation + 0.5*this.padLength, false);
+			ctx.strokeStyle = "#0000ff";
+		}
+		else
+		{
+			this.padLength = padLength * 0.5
+
+			ctx.arc(this.x, this.y, center.radius+this.padWidth*0.5, this.rotation-0.5*this.padLength, this.rotation + 0.5*this.padLength, false);
+			ctx.strokeStyle = "#0000ff";
+		}
+      	ctx.lineWidth = this.padWidth
+		ctx.stroke();	
 	}
+	
 }

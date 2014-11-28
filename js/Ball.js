@@ -1,5 +1,8 @@
-var ballSpeed = 2
-var spawnDistance = 700
+var ballSpeed = 4
+var maxAngleOffset = Math.PI/6
+var spawnDistance = 1000
+var speedMod = 0.5
+var ballColor = '#CF0000';
 
 function Ball() 
 {
@@ -11,7 +14,12 @@ function Ball()
 		this.beingTargeted = false
 		this.friendly = false
 		this.radius = 7
-		this.color = ballColor
+		this.alpha = 1
+
+		this.red = '207'
+		this.green = '0'
+		this.blue = '0'
+
 		var rNumber = Math.random()
 		if (test == true)
 		{
@@ -56,7 +64,8 @@ function Ball()
 		   	
 			//this.crashTime = -(Math.sqrt(-4*(this.vector[0]*this.vector[0]+this.vector[1]*this.vector[1])*(-(this.radius + circleHit)*(this.radius + circleHit)+sx*sx+sy*sy) + (2*sx*this.vector[0]+2*sy*this.vector[1])*(2*sx*this.vector[0]+2*sy*this.vector[1]))+2*sx*this.vector[0]+2*sy*this.vector[1])/(2*this.vector[0]*this.vector[0]+2*this.vector[1]*this.vector[1])
 			//this.crashTime = Number(this.crashTime.toFixed(2))
-			this.crashTime = (spawnDistance-center.radius-this.radius-10)/(this.speed*100)
+			
+			this.crashTime = (spawnDistance-center.radius-this.radius-pad.padWidth)/(this.speed*100)
 			var distance = Math.sqrt(dx * dx + dy * dy)
 
 			this.crashAngle = -Math.atan2(dy, dx)
@@ -76,31 +85,43 @@ function Ball()
 		ballArray.splice(ballArray.indexOf(this), 1)
 		turnedArray[turnedArray.length] = this
 		this.friendly = true
-		this.color = "#0000ff"
+		
+		this.red = '0'
+		this.green = '0'
+		this.blue = '255'
 
-		if (Math.abs(deltaRotation) > 0)
+		if (Math.abs(pad.deltaRotation) > 0)
 		{
-			var angleChange = 10*deltaRotation
-			angleChange = Math.max(angleChange, -Math.PI/3)
-			angleChange = Math.min(angleChange, Math.PI/3)
-			this.crashAngle += angleChange
+			var angleChange = 5*pad.deltaRotation
+			angleChange = Math.min(Math.abs(angleChange), maxAngleOffset)*angleChange/Math.abs(angleChange)
+			this.crashAngle -= angleChange
 		}
 		
-
 		this.circleCounter = 0
-		
-		this.orbitRadius = Math.min(3*center.radius + 3*Math.random()*center.radius + 0.5*deltaMouse*deltaMouse, 0.4*canvas.height)
-		console.trace(this.orbitRadius)
-		this.circleSpeed = 100000/Math.pow(this.orbitRadius,3)
-		/*this.orbitX = Math.cos(this.crashAngle)
-		this.orbitX = Math.max(0.5, this.orbitX)
+		this.orbitRadius = Math.min(4*center.radius + 4*Math.random()*center.radius + 0.5*pad.deltaRotation * pad.deltaRotation, 0.4*canvas.height)
 
-		this.orbitY = Math.sin(this.crashAngle)
-		this.orbitY = Math.max(0.5, this.orbitY)*/
+		if (pad.deltaRotation >= 0)
+		{
+			this.circleSpeed = this.speed*100/Math.pow(this.orbitRadius,2)
+		}
+		else
+		{
+			this.circleSpeed = -this.speed*100/Math.pow(this.orbitRadius,2)
+		}
 
 		this.expectedToCrash = false
 		this.errorSpeedX = 0
 		this.errorSpeedY = 0
+	}
+
+	this.die = function() // Get shot
+	{
+		this.radius += 0.1
+		this.alpha -= 0.02
+		if (this.alpha < 0.1)
+		{
+			explodingArray.splice(explodingArray.indexOf(this))
+		}
 	}
 
 	this.moveIntoOrbit = function()
@@ -108,110 +129,29 @@ function Ball()
 		var refX = center.x + this.orbitRadius*Math.cos(this.circleCounter + this.crashAngle)
 		var refY = center.y + this.orbitRadius*Math.sin(this.circleCounter + this.crashAngle)
 
-		this.errorSpeedX = refX-this.x
-		this.errorSpeedY = refY-this.y
+		this.errorSpeedX = (refX-this.x)* Math.abs(this.circleSpeed)
+		this.errorSpeedY = (refY-this.y)* Math.abs(this.circleSpeed)
 	}
 
-	this.testCollision = function(ball1)
+	this.updateBall = function(modifier)
 	{
-		var dx = ball1.x - this.x
-		var dy = ball1.y - this.y
-
-		var distance = Math.sqrt(dx*dx+dy*dy)
-
-		if (distance < ball1.radius + this.radius)
+		if (powerUps["slowMotion"] > 0)
 		{
-			return true
+			this.flightCounter += 0.01*speedMod;
+			this.x+=this.vector[0]*speedMod
+			this.y-=this.vector[1]*speedMod
 		}
 		else
 		{
-			return false
-		}
-	}
-
-	this.handleCollision = function(ball2, statusChange)
-	{
-		var dx = ball2.x-this.x
-		var dy = this.x-ball2.y
-		var distance = this.radius + ball2.radius
-
-		var XaxisAngle = Math.atan2(dy, dx)
-		var YaxisAngle = Math.atan2(dy, dx) - Math.PI/2
-
-		var vx = ball2.vector[0]
-		var vy = ball2.vector[1]
-
-		var vBallAngle = Math.atan2(vy, vx)
-
-		var vThisAngle = Math.atan2(this.vector[0], this.vector[1])
-
-		var ballResult = YaxisAngle + vThisAngle
-		var thisResult = YaxisAngle + vBallAngle
-
-		if (statusChange == true)
-		{
-			if (turnedArray.indexOf(this) > -1)
-			{
-
-				turnedArray.splice(turnedArray.indexOf(this), 1)
-			}
-			wasteArray[wasteArray.length] = this
-			this.color = "black"
-			ball2.color = "black"
+			this.flightCounter += 0.01;
+			this.x+=this.vector[0];
+			this.y-=this.vector[1];
 		}
 		
-		this.flightCounter = 0
-		this.crashTime = 5	
-		this.startX = this.x
-		this.startY = this.y
-		this.vector[0] = Math.cos(thisResult)
-		this.vector[1] = Math.sin(thisResult)
-		this.expectedToCrash = false
-		
-		ball2.expectedToCrash = false
-		ball2.flightCounter = 0
-		ball2.startX = ball2.x
-		ball2.startY = ball2.y
-		ball2.vector[0] = Math.cos(ballResult)
-		ball2.vector[1] = Math.sin(ballResult)
-		if(ballArray.indexOf(ball2)!=-1)
-		{
-			ballArray.splice(ballArray.indexOf(ball2),1)
-			wasteArray[wasteArray.length]=ball2
-		}
-	}
 
-	this.handleCenterCollision = function()
-	{
-		//console.trace("Black Ball Center Collision")
-		var dx = center.x-this.x
-		var dy = center.y-this.y
-		
-		var distanceAngle = Math.atan2(dy, dx)
-		var normalAngle = distanceAngle - Math.PI/2
-		var crashAngleC = Math.atan2(this.vector[1],this.vector[0])
-		var resultAngleC = 2*normalAngle-crashAngleC
-		
-		this.vector[0]=Math.cos(resultAngleC)
-		this.vector[1]=Math.sin(resultAngleC)
-
-		this.flightCounter = 0
-		this.startX = this.x
-		this.startY = this.y
-	}
-
-	this.updateBall = function(ball)
-	{
-		ball.flightCounter += 0.01;
-								
-		ball.x+=ball.vector[0]
-		ball.y-=ball.vector[1]
-		/*ball.x = ball.startX + ball.vector[0] * ball.flightCounter;
-		ball.y = ball.startY - ball.vector[1] * ball.flightCounter;*/
-         
-        if (ball.flightCounter >= ball.crashTime && ball.flightCounter < ball.crashTime +8/(ball.speed*100))
+        if (this.flightCounter >= this.crashTime && this.flightCounter < this.crashTime + pad.padWidth/(this.speed*100))
         {
-        	var Dangle = Math.abs(ball.crashAngle-pad.rotation)
+        	var Dangle = Math.abs(this.crashAngle-pad.rotation)
 			 
 			if(Dangle > Math.PI) 
 			{
@@ -219,9 +159,10 @@ function Ball()
 			}				
 			var ComboThen = comboThen
 			var now = survivedSeconds
-	       	if (Dangle < Math.PI/4 + Math.min(Math.PI/6,Math.abs(4*deltaRotation)))
+
+	       	if (Dangle < pad.padLength*0.5 + Math.min(Math.PI/6,Math.abs(10*pad.deltaRotation)))
 	        {
-	       		ball.turn()
+	       		this.turn()
 	        		
 				if (survivedSeconds-ComboThen <= 1)
 	       		{
@@ -262,13 +203,13 @@ function Ball()
         	}
        	}
  		
-        else if (ball.flightCounter > ball.crashTime + 20/(ball.speed*100) && ball.crashing==false)
+        else if (this.flightCounter > this.crashTime + 2*pad.padWidth/(this.speed*100) && this.crashing==false)
         {
         	center.redCounter = Math.min(center.redCounter+30, 255)
         	comboHits = 0
         	comboStage = 0
         	
-        	ball.crashing=true
+        	this.crashing=true
         	center.handleRadiusChange(-5)
         	if (muted == false)
         	{
@@ -276,18 +217,68 @@ function Ball()
 				haakon.play()
         	}
         	
-        	ballArray.splice(ballArray.indexOf(ball),1)
+        	ballArray.splice(ballArray.indexOf(this),1)
         	pad.draw()
         }
         //console.trace(ball.flightCounter, ball.crashTime, ball.speed, ball.crashing)
 	}
 
+	this.drawTurned = function(modifier)
+	{
+		this.moveIntoOrbit()
+        this.circleCounter += this.circleSpeed
+        this.radius = 7;
+		this.vector[0] = -Math.sin(this.circleCounter + this.crashAngle) + this.errorSpeedX
+		this.vector[1] = Math.cos(this.circleCounter + this.crashAngle) + this.errorSpeedY
+		this.x += this.vector[0]
+        this.y += this.vector[1]
+		if (Math.abs(this.circleCounter) >= 2*Math.PI)
+		{
+			this.circleCounter = 0
+		}
+
+		for (var e = 0; e < ballArray.length; e++)
+		{
+			var ball2 = ballArray[e]
+
+			if (ball2 != this && ball2.expectedToCrash == true)
+			{
+				if (collisionManager.testCollision(this, ball2, 0) == true)
+				{
+					collisionManager.handleCollision(this, ball2)
+				}
+			}
+		}
+
+
+		this.draw()
+	}
+
+	this.drawWaste = function(modifier)
+	{
+		this.x += this.vector[0]
+		this.y += this.vector[1]
+
+        if (Math.abs(this.x - center.x) > canvas.width/2 || Math.abs(this.y - center.y) > canvas.height/2)
+		{
+			wasteArray.splice(wasteArray.indexOf(this), 1)
+		}
+
+		if (collisionManager.testCollision(this, center, 0) == true)
+		{
+			collisionManager.handleCenterCollision(this)
+		}
+
+		this.draw()
+	}
+
+
  	this.draw = function() 
  	{
-        ctx.fillStyle = this.color;
+      	ctx.fillStyle = "rgba("+this.red+","+this.green+","+this.blue+","+String(this.alpha)+")";
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
+        ctx.arc(this.x, this.y, this.radius, 0, 2*Math.PI, false);
         ctx.fill();
         ctx.closePath();
-    };
-}
+    }
+} // Lucas is no longer allowed anywhere near lines 277 - 285 in ball.js

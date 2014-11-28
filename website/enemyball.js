@@ -9,8 +9,7 @@ var Ballfactory = function() {
 		currentCooldown += deltatime;
 		if(currentCooldown >= cooldown) {
 			this.spawn();
-		}
-		
+		}	
 	}
 
 	this.calculateBps = function() {
